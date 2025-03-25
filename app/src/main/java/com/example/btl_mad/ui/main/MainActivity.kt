@@ -1,10 +1,11 @@
-package com.example.btl_mad
+package com.example.btl_mad.ui.main
 
 import android.os.Bundle
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.btl_mad.R
 import com.google.firebase.FirebaseApp
 
 class MainActivity : AppCompatActivity() {
