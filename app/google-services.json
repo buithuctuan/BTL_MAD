@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "624983967703",
+    "project_id": "btl-mad-f8b25",
+    "storage_bucket": "btl-mad-f8b25.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:624983967703:android:8fce35a257d2570a98ed92",
+        "android_client_info": {
+          "package_name": "com.example.btl_mad"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA0rQDpDL4bT8bjSC7E9Tib_95Y5kpgDkA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
