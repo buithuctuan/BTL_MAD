@@ -10,7 +10,7 @@
 
 
     <ImageView
-        android:id="@+id/imageButton"
+        android:id="@+id/ivSplash"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="Bắt đầu"
@@ -28,7 +28,7 @@
         android:text="Money care"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageButton"
+        app:layout_constraintTop_toBottomOf="@+id/ivSplash"
         android:textSize="30sp"
         android:fontFamily="@font/be_vietnam_pro_bold"
         android:textColor="@color/white"/>
