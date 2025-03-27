@@ -21,7 +21,11 @@
             android:name=".ui.onboarding.OnboardingActivity"
             android:exported="false" />
         <activity
+            android:name=".ui.login.LoginActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.main.MainActivity"
             android:exported="false" />
+
     </application>
 </manifest>

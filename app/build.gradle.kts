@@ -34,6 +34,9 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        viewBinding = true
+    }
 }
 
 dependencies {
@@ -50,4 +53,6 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.androidx.viewpager2)
+    implementation(libs.firebase.ui.auth)
+    implementation(libs.facebook.android.sdk)
 }
