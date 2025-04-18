@@ -4,73 +4,145 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white">
+    android:background="@color/white"
+    android:padding="16dp"
+    tools:context=".ui.login.LoginActivity">
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="136dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/open_app" />
-
+    <!-- Tiêu đề -->
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="32dp"
         android:fontFamily="@font/be_vietnam_pro_bold"
         android:text="Đăng nhập"
+        android:textColor="@android:color/black"
         android:textSize="24sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+        app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- Mô tả -->
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/tvDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
         android:layout_marginTop="8dp"
-        android:text="Vui lòng đăng nhập để sử dụng Money care"
-        android:textColor="@color/grey"
+        android:fontFamily="@font/be_vietnam_pro_regular"
+        android:text="Đăng nhập với tài khoản của bạn"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
-    <ImageView
-        android:id="@+id/ivPhoneLogin"
-        android:layout_width="wrap_content"
+    <!-- Trường nhập tên tài khoản -->
+    <LinearLayout
+        android:id="@+id/usernameInputLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="52dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginTop="32dp"
+        android:orientation="horizontal"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView3"
-        app:srcCompat="@drawable/phone_login" />
+        app:layout_constraintTop_toBottomOf="@id/tvDescription">
 
-    <ImageView
-        android:id="@+id/ivFaceLogin"
-        android:layout_width="wrap_content"
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Icon tài khoản"
+            android:src="@android:drawable/ic_menu_manage" />
+
+        <EditText
+            android:id="@+id/etUsername"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="Tên tài khoản"
+            android:inputType="text"
+            android:maxLength="50"
+            android:textSize="16sp" />
+    </LinearLayout>
+
+    <!-- Trường nhập mật khẩu -->
+    <LinearLayout
+        android:id="@+id/passwordInputLayout"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="36dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        android:padding="8dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivPhoneLogin"
-        app:srcCompat="@drawable/facebook_login" />
+        app:layout_constraintTop_toBottomOf="@id/usernameInputLayout">
 
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Icon mật khẩu"
+            android:src="@android:drawable/ic_lock_idle_lock" />
+
+        <EditText
+            android:id="@+id/etPassword"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_weight="1"
+            android:background="@null"
+            android:hint="Mật khẩu"
+            android:inputType="textPassword"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/ivTogglePassword"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Hiện/Ẩn mật khẩu"
+            android:src="@android:drawable/ic_menu_view" />
+    </LinearLayout>
+
+    <!-- Quên mật khẩu -->
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/tvForgotPassword"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/appVersion"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/be_vietnam_pro_regular"
+        android:text="Quên mật khẩu"
+        android:textColor="@color/blue"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/passwordInputLayout" />
+
+    <!-- Nút Đăng nhập -->
+    <Button
+        android:id="@+id/btnLogin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@color/blue"
+        android:fontFamily="@font/be_vietnam_pro_bold"
+        android:text="Đăng nhập"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvForgotPassword" />
+
+    <!-- Dòng chữ "Bạn chưa có tài khoản? Đăng ký" -->
+    <TextView
+        android:id="@+id/tvSignUp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:fontFamily="@font/be_vietnam_pro_regular"
+        android:text="Bạn chưa có tài khoản? Đăng ký"
+        android:textColor="@color/blue"
+        android:textSize="14sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivFaceLogin"
-        app:layout_constraintVertical_bias="0.854" />
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
