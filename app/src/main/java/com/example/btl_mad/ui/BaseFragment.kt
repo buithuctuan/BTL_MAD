@@ -10,48 +10,39 @@ import com.example.btl_mad.R
 
 abstract class BaseFragment : Fragment() {
     private var toolbar: Toolbar? = null
-    private var toolbarTitle: String? = null
 
-    // Phương thức trừu tượng để lấy layout ID của Fragment
     abstract fun getLayoutId(): Int
-
-    // Phương thức để lấy tiêu đề của Toolbar
     open fun getToolbarTitle(): String? = null
-
-    // Phương thức để thiết lập menu cho Toolbar (nếu cần)
     open fun setupToolbarMenu(toolbar: Toolbar) {}
+    open fun useToolbar(): Boolean = true // Cho phép tắt toolbar với một số Fragment
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Tạo layout chính bao gồm Toolbar và nội dung Fragment
         val rootView = inflater.inflate(R.layout.fragment_base, container, false) as ViewGroup
         toolbar = rootView.findViewById(R.id.toolbar)
 
-        // Thêm layout của Fragment con vào container
-        val contentView = inflater.inflate(getLayoutId(), rootView, false)
-        val container = rootView.findViewById<ViewGroup>(R.id.fragment_content)
-        container.addView(contentView)
+        if (!useToolbar()) {
+            toolbar?.visibility = View.GONE
+        } else {
+            setupToolbar(toolbar!!)
+        }
 
-        // Thiết lập Toolbar
-        toolbar?.let { setupToolbar(it) }
+        val contentView = inflater.inflate(getLayoutId(), rootView, false)
+        val containerLayout = rootView.findViewById<ViewGroup>(R.id.fragment_content)
+        containerLayout.addView(contentView)
 
         return rootView
     }
 
     private fun setupToolbar(toolbar: Toolbar) {
-        // Thiết lập tiêu đề
-        toolbarTitle = getToolbarTitle()
-        toolbar.title = toolbarTitle
-
-        // Thiết lập nút back
+        toolbar.title = getToolbarTitle()
         toolbar.setNavigationIcon(R.drawable.ic_back)
         toolbar.setNavigationOnClickListener {
             requireActivity().onBackPressed()
         }
-
-        // Thiết lập menu (nếu có)
         setupToolbarMenu(toolbar)
     }
 }
+

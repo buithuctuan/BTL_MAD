@@ -1,68 +1,54 @@
 package com.example.btl_mad.ui.main
 
 import android.os.Bundle
+import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.example.btl_mad.R
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.example.btl_mad.ui.home.HomeFragment
+//import com.example.btl_mad.ui.StatisticsFragment
+//import com.example.btl_mad.ui.TransactionsFragment
+//import com.example.btl_mad.ui.ProfileFragment
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var bottomNavigation: BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(R.layout.activity_bottom_nav)
 
-        // Khởi tạo BottomNavigationView
-        bottomNavigation = findViewById(R.id.bottom_navigation)
-        bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.nav_home -> {
-                    loadFragment(HomeFragment(), false) // Không thêm vào back stack
-                    true
-                }
-                R.id.nav_transactions -> {
-                    loadFragment(TransactionsFragment(), true)
-                    true
-                }
-                R.id.nav_statistics -> {
-                    loadFragment(StatisticsFragment(), true)
-                    true
-                }
-                R.id.nav_profile -> {
-                    loadFragment(ProfileFragment(), true)
-                    true
-                }
-                else -> false
-            }
-        }
-
-        // Mặc định hiển thị HomeFragment
+        // Gắn fragment mặc định
         if (savedInstanceState == null) {
-            loadFragment(HomeFragment(), false)
-            bottomNavigation.selectedItemId = R.id.nav_home
+            loadFragment(HomeFragment())
         }
+
+        setupBottomNav()
     }
 
-    private fun loadFragment(fragment: Fragment, addToBackStack: Boolean) {
-        val transaction = supportFragmentManager.beginTransaction()
-            .replace(R.id.fragment_container, fragment)
-        if (addToBackStack) {
-            transaction.addToBackStack(fragment.javaClass.simpleName)
+    private fun setupBottomNav() {
+        findViewById<LinearLayout>(R.id.nav_home).setOnClickListener {
+            loadFragment(HomeFragment())
         }
-        transaction.commit()
+
+//        findViewById<LinearLayout>(R.id.nav_transactions).setOnClickListener {
+//            loadFragment(TransactionsFragment())
+//        }
+//
+//        findViewById<LinearLayout>(R.id.nav_add).setOnClickListener {
+//            // Mở màn thêm giao dịch hoặc dialog
+//        }
+//
+//        findViewById<LinearLayout>(R.id.nav_statistics).setOnClickListener {
+//            loadFragment(StatisticsFragment())
+//        }
+//
+//        findViewById<LinearLayout>(R.id.nav_profile).setOnClickListener {
+//            loadFragment(ProfileFragment())
+//        }
     }
 
-    override fun onBackPressed() {
-        // Nếu đang ở HomeFragment, thoát ứng dụng
-        val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (currentFragment is HomeFragment || supportFragmentManager.backStackEntryCount == 0) {
-            super.onBackPressed() // Thoát ứng dụng
-        } else {
-            // Quay lại HomeFragment
-            loadFragment(HomeFragment(), false)
-            bottomNavigation.selectedItemId = R.id.nav_home
-            supportFragmentManager.popBackStack() // Xóa back stack
-        }
+    private fun loadFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.content_frame, fragment)
+            .commit()
     }
 }

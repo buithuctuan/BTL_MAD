@@ -56,4 +56,9 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.retrofit2.converter.gson)
     implementation(libs.gson)
+    implementation(libs.androidx.fragment.ktx)
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+
+
+
 }
