@@ -1,4 +1,6 @@
 package com.example.btl_mad.data
 
-class Question {
-}
+data class Question(
+    val id: Int,
+    val question_detail: String
+)

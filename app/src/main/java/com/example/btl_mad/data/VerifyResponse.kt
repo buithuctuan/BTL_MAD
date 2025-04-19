@@ -1,4 +1,6 @@
 package com.example.btl_mad.data
 
-class VerifyResponse {
-}
+data class VerifyResponse(
+    val message: String,
+    val status: Boolean
+)

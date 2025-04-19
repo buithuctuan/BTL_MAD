@@ -2,6 +2,7 @@ package com.example.btl_mad.ui.signup
 
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.text.InputType
 import android.view.View
@@ -16,11 +17,16 @@ import com.example.btl_mad.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.HttpException
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
 class SignUpActivity : AppCompatActivity() {
+    private lateinit var etUsername: EditText
     private lateinit var etFullName: EditText
     private lateinit var etDob: EditText
     private lateinit var etEmail: EditText
@@ -31,6 +37,7 @@ class SignUpActivity : AppCompatActivity() {
     private lateinit var spinnerSecurityQuestion: Spinner
     private lateinit var etSecurityAnswer: EditText
     private lateinit var etAvatar: EditText
+    private lateinit var sharedPreferences: SharedPreferences
     private var isPasswordVisible = false
     private var questions: List<Question> = emptyList()
 
@@ -38,6 +45,7 @@ class SignUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sign_up)
 
+        etUsername = findViewById(R.id.etUsername)
         etFullName = findViewById(R.id.etFullName)
         etDob = findViewById(R.id.etDob)
         etEmail = findViewById(R.id.etEmail)
@@ -48,8 +56,9 @@ class SignUpActivity : AppCompatActivity() {
         spinnerSecurityQuestion = findViewById(R.id.spinnerSecurityQuestion)
         etSecurityAnswer = findViewById(R.id.etSecurityAnswer)
         etAvatar = findViewById(R.id.etAvatar)
+        sharedPreferences = getSharedPreferences("SecurityQuestions", MODE_PRIVATE)
 
-        // Lấy danh sách câu hỏi từ API
+        // Lấy danh sách câu hỏi từ API hoặc cache
         loadSecurityQuestions()
 
         // Xử lý hiện/ẩn mật khẩu
@@ -72,6 +81,7 @@ class SignUpActivity : AppCompatActivity() {
 
         // Xử lý nút Đăng ký
         findViewById<View>(R.id.btnSignUp).setOnClickListener {
+            val username = etUsername.text.toString().trim()
             val fullName = etFullName.text.toString().trim()
             val dob = etDob.text.toString().trim()
             val email = etEmail.text.toString().trim()
@@ -82,65 +92,50 @@ class SignUpActivity : AppCompatActivity() {
             val securityAnswer = etSecurityAnswer.text.toString().trim()
             val avatar = etAvatar.text.toString().trim()
 
-            // Validate đầu vào
-            if (fullName.isEmpty() || dob.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || password.isEmpty() || selectedGenderId == -1 || selectedQuestionPosition == 0 || securityAnswer.isEmpty()) {
+            // Validate đầu vào cơ bản
+            if (username.isEmpty() || fullName.isEmpty() || dob.isEmpty() || email.isEmpty() ||
+                phoneNumber.isEmpty() || password.isEmpty() || selectedGenderId == -1 ||
+                selectedQuestionPosition == 0 || securityAnswer.isEmpty()) {
                 Toast.makeText(this, "Vui lòng nhập đầy đủ thông tin", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            // Validate họ tên
-            if (fullName.length < 3) {
-                Toast.makeText(this, "Họ tên phải có ít nhất 3 ký tự", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Validate email
-            if (!isValidEmail(email)) {
-                Toast.makeText(this, "Email không hợp lệ", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Validate số điện thoại
-            if (!isValidVietnamPhoneNumber(phoneNumber)) {
-                Toast.makeText(this, "Số điện thoại không hợp lệ", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Validate mật khẩu
-            if (password.length < 6) {
-                Toast.makeText(this, "Mật khẩu phải có ít nhất 6 ký tự", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            // Validate câu trả lời bảo mật
-            if (securityAnswer.length < 3) {
-                Toast.makeText(this, "Câu trả lời bảo mật phải có ít nhất 3 ký tự", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
             // Lấy giới tính
-            val gender = if (selectedGenderId == R.id.rbMale) "Nam" else "Nữ"
+            val gender = when (selectedGenderId) {
+                R.id.rbMale -> "male"
+                R.id.rbFemale -> "female"
+                else -> {
+                    Toast.makeText(this, "Vui lòng chọn giới tính", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+            }
 
             // Chuyển định dạng ngày sinh sang "yyyy-MM-dd"
             val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val dobFormatted = outputFormat.format(inputFormat.parse(dob)!!)
+            val dobFormatted = try {
+                outputFormat.format(inputFormat.parse(dob)!!)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Định dạng ngày sinh không hợp lệ", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
             // Lấy question_id từ vị trí được chọn trong Spinner
             val selectedQuestionId = if (selectedQuestionPosition > 0) {
                 questions[selectedQuestionPosition - 1].id
             } else {
-                0
+                Toast.makeText(this, "Vui lòng chọn câu hỏi bảo mật", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
 
             // Tạo đối tượng User
             val user = User(
-                username = email.split("@")[0],
+                username = username,
                 pass_ = password,
                 full_name = fullName,
                 dateOfBirth = dobFormatted,
                 mail = email,
-                phone = phoneNumber,
+                phoneNumber = phoneNumber,  // Sử dụng phoneNumber thay vì phone
                 sex = gender,
                 question_id = selectedQuestionId,
                 answer_for_forgot_password = securityAnswer,
@@ -150,16 +145,25 @@ class SignUpActivity : AppCompatActivity() {
             // Gọi API đăng ký
             CoroutineScope(Dispatchers.Main).launch {
                 try {
-                    val response = RetrofitClient.apiService.registerUser(user)
+                    val response = withContext(Dispatchers.IO) {
+                        RetrofitClient.apiService.registerUser(user)
+                    }
                     if (response.isSuccessful) {
-                        Toast.makeText(this@SignUpActivity, response.body()?.get("message"), Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this@SignUpActivity, MainActivity::class.java))
+                        val message = response.body()?.get("message") as? String ?: "Đăng ký thành công"
+                        Toast.makeText(this@SignUpActivity, message, Toast.LENGTH_SHORT).show()
+                        val intent = Intent(this@SignUpActivity, MainActivity::class.java)
+                        intent.putExtra("username", username)
+                        startActivity(intent)
                         finish()
                     } else {
-                        Toast.makeText(this@SignUpActivity, response.errorBody()?.string(), Toast.LENGTH_SHORT).show()
+                        val errorBody = response.errorBody()?.string() ?: "Đăng ký thất bại"
+                        Toast.makeText(this@SignUpActivity, errorBody, Toast.LENGTH_LONG).show()
                     }
+                } catch (e: HttpException) {
+                    val errorBody = e.response()?.errorBody()?.string() ?: "Lỗi server"
+                    Toast.makeText(this@SignUpActivity, errorBody, Toast.LENGTH_LONG).show()
                 } catch (e: Exception) {
-                    Toast.makeText(this@SignUpActivity, "Lỗi: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SignUpActivity, "Lỗi: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
         }
@@ -172,23 +176,41 @@ class SignUpActivity : AppCompatActivity() {
     }
 
     private fun loadSecurityQuestions() {
+        // Kiểm tra cache
+        val cachedQuestions = sharedPreferences.getString("questions", null)
+        if (cachedQuestions != null) {
+            val type = object : TypeToken<List<Question>>() {}.type
+            questions = Gson().fromJson(cachedQuestions, type)
+            setupSpinner()
+            return
+        }
+
+        // Tải từ API
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val response = RetrofitClient.apiService.getQuestions()
+                val response = withContext(Dispatchers.IO) {
+                    RetrofitClient.apiService.getQuestions()
+                }
                 if (response.isSuccessful) {
                     questions = response.body() ?: emptyList()
-                    val questionDetails = mutableListOf("Chọn câu hỏi bảo mật")
-                    questionDetails.addAll(questions.map { it.question_detail })
-                    val adapter = ArrayAdapter(this@SignUpActivity, android.R.layout.simple_spinner_item, questionDetails)
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                    spinnerSecurityQuestion.adapter = adapter
+                    // Lưu vào cache
+                    sharedPreferences.edit().putString("questions", Gson().toJson(questions)).apply()
+                    setupSpinner()
                 } else {
-                    Toast.makeText(this@SignUpActivity, "Không thể tải câu hỏi bảo mật", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@SignUpActivity, "Không thể tải câu hỏi: ${response.code()}", Toast.LENGTH_SHORT).show()
                 }
             } catch (e: Exception) {
                 Toast.makeText(this@SignUpActivity, "Lỗi: ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun setupSpinner() {
+        val questionDetails = mutableListOf("Chọn câu hỏi bảo mật")
+        questionDetails.addAll(questions.map { it.question_detail })
+        val adapter = ArrayAdapter(this@SignUpActivity, android.R.layout.simple_spinner_item, questionDetails)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerSecurityQuestion.adapter = adapter
     }
 
     private fun showDatePicker() {

@@ -1,4 +1,10 @@
 package com.example.btl_mad.ui.main
 
-class StatisticsFragment {
+import com.example.btl_mad.R
+import com.example.btl_mad.ui.BaseFragment
+
+class StatisticsFragment : BaseFragment() {
+    override fun getLayoutId(): Int = R.layout.fragment_statistics
+
+    override fun getToolbarTitle(): String = "Thống kê"
 }
