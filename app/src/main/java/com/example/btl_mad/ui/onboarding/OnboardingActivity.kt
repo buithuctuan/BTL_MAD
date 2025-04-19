@@ -9,11 +9,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.btl_mad.R
-<<<<<<< HEAD
+
 import com.example.btl_mad.data.remote.model.Transaction
-=======
 import com.example.btl_mad.ui.login.LoginActivity
->>>>>>> 1b8dcd1b2f0ebfc6d4382066bd60ae2c6df19b07
+
 import com.example.btl_mad.ui.main.MainActivity
 import com.example.btl_mad.ui.transaction.AddTransactionActivity
 
