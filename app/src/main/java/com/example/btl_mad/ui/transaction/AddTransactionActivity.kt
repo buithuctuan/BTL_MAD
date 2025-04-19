@@ -248,7 +248,7 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     private fun showSuccessDialog() {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.success_dialog, null)
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.success_dialog_transaction, null)
         val dialog = MaterialAlertDialogBuilder(this)
             .setView(dialogView)
             .setCancelable(false)

@@ -1,0 +1,8 @@
+[33m1b8dcd1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtuan[m[33m, [m[1;31morigin/tuan[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/dev[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m, [m[1;32mdev[m[33m)[m Thêm frame lựa chọn phương thức đăng nhập/Frame onboard chỉ xuất hiện khi mở app lần đầu
+[33m76f9d44[m Add onboard frame
+[33m4fac529[m add splash frame and font
+[33m83034db[m add png
+[33m8e1528a[m Add model
+[33me238825[m change folder tree
+[33m91c5eb3[m Add firebase enviroment
+[33md8fd807[m[33m ([m[1;31morigin/Mai[m[33m)[m first commit
