@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">BTL_MAD</string>
+    <string name="app_name">Expense Tracker</string>
+    <string-array name="expense_categories">
+        <item>Lựa chọn phân loại</item>
+        <item>Ăn uống</item>
+        <item>Di chuyển</item>
+        <item>Mua sắm</item>
+        <item>Hóa đơn</item>
+        <item>Khác</item>
+    </string-array>
 </resources>
