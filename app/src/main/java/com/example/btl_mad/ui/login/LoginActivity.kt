@@ -14,7 +14,7 @@ import com.example.btl_mad.R
 import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.LoginUser
 import com.example.btl_mad.ui.forgotpassword.ForgotPasswordActivity
-import com.example.btl_mad.ui.main.MainActivity
+import com.example.btl_mad.ui.fund.MainActivity
 import com.example.btl_mad.ui.signup.SignUpActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
