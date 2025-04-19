@@ -9,7 +9,11 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.btl_mad.R
+<<<<<<< HEAD
 import com.example.btl_mad.data.remote.model.Transaction
+=======
+import com.example.btl_mad.ui.login.LoginActivity
+>>>>>>> 1b8dcd1b2f0ebfc6d4382066bd60ae2c6df19b07
 import com.example.btl_mad.ui.main.MainActivity
 import com.example.btl_mad.ui.transaction.AddTransactionActivity
 
@@ -47,7 +51,11 @@ class OnboardingActivity : AppCompatActivity() {
 
         // Xử lý nút "Skip"
         tvSkip.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            android.util.Log.d("OnboardingActivity", "Skip clicked, navigating to LoginActivity")
+            // Lưu trạng thái đã xem onboarding
+            val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+            sharedPreferences.edit().putBoolean("hasSeenOnboarding", true).apply()
+            startActivity(Intent(this, LoginActivity::class.java))
             finish()
         }
 
@@ -55,11 +63,21 @@ class OnboardingActivity : AppCompatActivity() {
         ibNext.setOnClickListener {
             val currentItem = viewPager.currentItem
             if (currentItem < adapter.itemCount - 1) {
-                // Chuyển sang trang tiếp theo
+                android.util.Log.d(
+                    "OnboardingActivity",
+                    "Next clicked, moving to page ${currentItem + 1}"
+                )
                 viewPager.currentItem = currentItem + 1
             } else {
-                // Trang cuối, chuyển sang MainActivity
-                startActivity(Intent(this, AddTransactionActivity::class.java))
+
+                android.util.Log.d(
+                    "OnboardingActivity",
+                    "Next clicked on last page, navigating to LoginActivity"
+                )
+                // Lưu trạng thái đã xem onboarding
+                val sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE)
+                sharedPreferences.edit().putBoolean("hasSeenOnboarding", true).apply()
+                startActivity(Intent(this, LoginActivity::class.java))
                 finish()
             }
         }

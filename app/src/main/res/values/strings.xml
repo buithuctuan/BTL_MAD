@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Expense Tracker</string>
+
+    <string name="appVersion">Phiên bản 1.0.0</string>
+
     <string-array name="expense_categories">
         <item>Lựa chọn phân loại</item>
         <item>Ăn uống</item>
