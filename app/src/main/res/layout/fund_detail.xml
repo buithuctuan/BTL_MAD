@@ -24,7 +24,7 @@
             android:padding="8dp"
             app:srcCompat="@drawable/arrowleft"
             android:layout_gravity="bottom"
-            android:onClick="back"
+            android:onClick="goBack"
             android:layout_marginBottom="10dp"
             android:contentDescription="Nút quay lại"
             android:background="?attr/selectableItemBackgroundBorderless"/>
@@ -70,16 +70,13 @@
 
     </LinearLayout>
 
-
-    <TextView
-        android:id="@+id/filterCalendar"
+    <Spinner
+        android:id="@+id/monthSpinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="164dp"
+        android:layout_marginStart="136dp"
         android:layout_marginTop="88dp"
-        android:text="Tháng này"
-        android:textColor="@color/white"
-        android:textSize="18sp"
+        android:textColor="@android:color/white"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -87,25 +84,13 @@
         android:id="@+id/imageButton4"
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginStart="116dp"
+        android:layout_marginStart="96dp"
         android:layout_marginTop="76dp"
         android:background="@android:color/transparent"
         android:contentDescription="Calender button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/calender" />
-
-    <ImageButton
-        android:id="@+id/showFilterCalendar2"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="244dp"
-        android:layout_marginTop="76dp"
-        android:background="@android:color/transparent"
-        android:contentDescription="Arrow down"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/arrow_down_white" />
 
     <LinearLayout
         android:id="@+id/totalIncome"
@@ -114,6 +99,7 @@
         android:layout_height="86dp"
         android:layout_marginStart="208dp"
         android:layout_marginTop="124dp"
+        android:onClick="onTypeClick"
         android:gravity="start|top"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
@@ -147,6 +133,7 @@
         android:layout_marginTop="124dp"
         android:gravity="start|top"
         android:orientation="vertical"
+        android:onClick="onTypeClick"
         android:background="@drawable/bg_total_spending"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -178,6 +165,7 @@
         android:layout_marginTop="220dp"
         android:gravity="start|top"
         android:orientation="vertical"
+        android:onClick="onTypeClick"
         android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -216,11 +204,13 @@
                 android:textColorHint="#CCCCCC" />
 
             <ImageView
+                android:id="@+id/filterImageView"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
                 android:background="@android:color/transparent"
-                android:src="@drawable/filter" />
+                android:src="@drawable/filter"
+                android:onClick="onSearchClick" />
 
         </LinearLayout>
 
@@ -232,6 +222,7 @@
             android:padding="8dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </LinearLayout>
 
 

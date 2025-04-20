@@ -24,5 +24,10 @@ class MainActivity : AppCompatActivity() {
     fun goListFund(view: View?) {
         val intent = Intent(this, ListFund::class.java)
         startActivity(intent)
+        finish()
+    }
+
+    fun back(view: View) {
+        finish()
     }
 }

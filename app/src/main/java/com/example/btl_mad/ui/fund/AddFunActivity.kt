@@ -1,6 +1,8 @@
 package com.example.btl_mad.ui.fund
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,14 +13,22 @@ import android.widget.EditText
 import android.widget.GridView
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.btl_mad.R
+import com.example.btl_mad.api.RetrofitClient
+import com.example.btl_mad.data.FundResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 
 class AddFundActivity : AppCompatActivity() {
 
     private lateinit var iconSelector: LinearLayout
     private lateinit var selectedIcon: ImageView
+    private var pos_icon: Int = 0
+
 
     private val iconList = listOf(
         R.drawable.fund_icon_1,
@@ -27,8 +37,8 @@ class AddFundActivity : AppCompatActivity() {
         R.drawable.fund_icon_4,
         R.drawable.fund_icon_5,
         R.drawable.fund_icon_6,
-        R.drawable.fund_icon_6,
-        R.drawable.fund_icon_6
+        R.drawable.fund_icon_7,
+        R.drawable.fund_icon_8
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,9 +54,57 @@ class AddFundActivity : AppCompatActivity() {
 
         val btnAdd = findViewById<Button>(R.id.btnAdd)
         btnAdd.setOnClickListener {
-            showSuccess()
+            validateAndAddFund()
         }
 
+    }
+
+    private fun validateAndAddFund() {
+        val fundName = findViewById<EditText>(R.id.fundNameEditText).text.toString().trim()
+        val limitString = findViewById<EditText>(R.id.limitEditText).text.toString().trim()
+        val limit = limitString.toFloatOrNull()
+
+        // Kiểm tra tính hợp lệ của dữ liệu
+        if (fundName.isEmpty()) {
+            Toast.makeText(this, "Tên loại chi tiêu không được để trống", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (limit == null || limit <= 0) {
+            Toast.makeText(this, "Hạn mức chi tiêu phải là một số hợp lệ và lớn hơn 0", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val selectedIcon = iconList[pos_icon]
+        // Gọi API để thêm hũ chi tiêu nếu mọi thông tin hợp lệ
+        addFund(fundName, limit, selectedIcon)
+    }
+
+    private fun addFund(fundName: String, limit: Float, selectedIcon: Int) {
+        val userId = 5
+
+        // Gọi API
+        RetrofitClient.apiService.addFund( fundName, userId,selectedIcon, limit).enqueue(object : Callback<FundResponse> {
+            override fun onResponse(call: Call<FundResponse>, response: Response<FundResponse>) {
+                if (response.isSuccessful) {
+                    val fundResponse = response.body()
+                    if (fundResponse != null) {
+                        if (fundResponse.status == 200) {
+                            // Hiển thị thông báo thành công
+                            showSuccess()
+                        } else {
+                            // Hiển thị thông báo lỗi
+                            Toast.makeText(this@AddFundActivity, fundResponse.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this@AddFundActivity, "Có lỗi khi thêm hũ chi tiêu", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<FundResponse>, t: Throwable) {
+                Toast.makeText(this@AddFundActivity, "Lỗi kết nối API", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 
     private fun showSuccess() {
@@ -62,6 +120,9 @@ class AddFundActivity : AppCompatActivity() {
 
         btnBack.setOnClickListener {
             dialog.dismiss()
+            val intent = Intent(this@AddFundActivity, ListFund::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+            startActivity(intent)
             finish() // hoặc chuyển về màn hình trước
         }
 
@@ -101,11 +162,15 @@ class AddFundActivity : AppCompatActivity() {
 
         gridView.setOnItemClickListener { _, _, position, _ ->
             selectedIcon.setImageResource(iconList[position])
+            pos_icon = position
             dialog.dismiss()
         }
 
         dialog.show()
     }
 
+    fun back(view: View?) {
+        finish()
+    }
 
 }
