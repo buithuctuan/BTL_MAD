@@ -10,12 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.btl_mad.R
 
-import com.example.btl_mad.data.remote.model.Transaction
 import com.example.btl_mad.ui.login.LoginActivity
-
-
-import com.example.btl_mad.ui.main.MainActivity
-import com.example.btl_mad.ui.transaction.AddTransactionActivity
 
 // OnboardingActivity: Màn hình giới thiệu với 2 trang, cho phép người dùng xem qua hoặc bỏ qua để vào MainActivity.
 class OnboardingActivity : AppCompatActivity() {

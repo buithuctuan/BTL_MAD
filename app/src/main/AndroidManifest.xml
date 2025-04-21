@@ -33,8 +33,9 @@
             android:exported="false" />
 
         <activity
-            android:name=".ui.transaction.AddTransactionActivity"
+            android:name=".ui.transaction.AddTransactionExpenseActivity"
             android:exported="false" />
+        <activity android:name=".ui.transaction.AddTransactionIncomeActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

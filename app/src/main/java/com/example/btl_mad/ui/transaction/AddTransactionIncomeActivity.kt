@@ -2,8 +2,6 @@ package com.example.btl_mad.ui.transaction
 
 import android.content.Intent
 import android.net.Uri
-import java.io.File
-import androidx.core.content.FileProvider
 import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
@@ -14,18 +12,30 @@ import android.widget.EditText
 import android.widget.GridView
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ListView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.FileProvider
 import com.example.btl_mad.R
+import com.example.btl_mad.api.RetrofitClient
+import com.example.btl_mad.data.ExpenseRequest
+import com.example.btl_mad.data.TransactionType
+import com.example.btl_mad.data.User
+import com.example.btl_mad.ui.main.MainActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.gson.Gson
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class AddTransactionActivity : AppCompatActivity() {
+class AddTransactionIncomeActivity : AppCompatActivity() {
 
     private lateinit var datePickerLayout: LinearLayout
     private lateinit var datePickerText: TextView
@@ -37,9 +47,11 @@ class AddTransactionActivity : AppCompatActivity() {
     private lateinit var iconImage: ImageView
     private lateinit var toolbar: Toolbar
     private var cameraImageUri: Uri? = null
+    private var transactionTypes: List<TransactionType> = emptyList()
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { iconImage.setImageURI(it) }
+        cameraImageUri = uri
     }
 
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
@@ -52,7 +64,7 @@ class AddTransactionActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.add_transactions)
+        setContentView(R.layout.add_transactions_income)
 
         // Ánh xạ các thành phần giao diện
         toolbar = findViewById(R.id.toolbar)
@@ -89,7 +101,11 @@ class AddTransactionActivity : AppCompatActivity() {
 
         // Xử lý phân loại
         categoryLayout.setOnClickListener {
-            showCategoryPickerDialog()
+            if (transactionTypes.isEmpty()) {
+                fetchTransactionTypes()
+            } else {
+                showCategoryPickerDialog()
+            }
         }
 
         // Xử lý nút Lưu
@@ -102,9 +118,106 @@ class AddTransactionActivity : AppCompatActivity() {
             if (date == "Chọn ngày" || amount.isEmpty() || category == "Lựa chọn phân loại") {
                 Toast.makeText(this, "Vui lòng điền đầy đủ thông tin!", Toast.LENGTH_SHORT).show()
             } else {
-                showSuccessDialog()
+                saveIncomeToServer(date, amount, category, note)
             }
         }
+
+        // Lấy danh sách transaction_type khi khởi động
+        fetchTransactionTypes()
+    }
+
+
+    private fun fetchTransactionTypes() {
+        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val userJson = sharedPreferences.getString("user", null)
+        val user = Gson().fromJson(userJson, User::class.java)
+
+        RetrofitClient.apiService.getTransactionTypes(user.id).enqueue(object : Callback<List<TransactionType>> {
+            override fun onResponse(call: Call<List<TransactionType>>, response: Response<List<TransactionType>>) {
+                if (response.isSuccessful) {
+                    transactionTypes = response.body() ?: emptyList()
+                    if (transactionTypes.isEmpty()) {
+                        Toast.makeText(this@AddTransactionIncomeActivity, "Không có phân loại nào!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this@AddTransactionIncomeActivity, "Lỗi khi lấy danh sách phân loại: ${response.message()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<TransactionType>>, t: Throwable) {
+                Toast.makeText(this@AddTransactionIncomeActivity, "Lỗi kết nối: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun saveIncomeToServer(date: String, amount: String, category: String, note: String) {
+        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
+        val userJson = sharedPreferences.getString("user", null)
+
+        val userId = if (userJson != null) {
+            try {
+                val user = Gson().fromJson(userJson, User::class.java)
+                user.id // Đây là Int, không phải Double
+            } catch (e: Exception) {
+                Log.e("ERROR", "Lỗi khi parse userJson: ${e.message}")
+                0
+            }
+        } else {
+            0
+        }
+
+        // Nếu không lấy được user_id thì không gửi request
+        if (userId == 0) {
+            Toast.makeText(this, "Không tìm thấy thông tin người dùng!", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val amountValue = amount.toDoubleOrNull() ?: 0.0
+        val transactionTypeId = getTransactionTypeIdFromCategory(category)
+
+        val screenshotPath = cameraImageUri?.let { uri ->
+            uri.toString()
+        }
+
+        val formattedDate = if (date.contains(",")) {
+            date.split(", ")[1]
+        } else {
+            date
+        }
+
+        val request = ExpenseRequest(
+            user_id = userId,
+            dot = formattedDate,
+            in_out_budget = "thu",
+            amount = amountValue,
+            transaction_type_id = transactionTypeId,
+            note = note,
+            screenshot = screenshotPath
+        )
+
+        RetrofitClient.apiService.saveExpense(request).enqueue(object : Callback<com.example.btl_mad.data.ExpenseResponse> {
+            override fun onResponse(call: Call<com.example.btl_mad.data.ExpenseResponse>, response: Response<com.example.btl_mad.data.ExpenseResponse>) {
+                if (response.isSuccessful) {
+                    val expenseResponse = response.body()
+                    if (expenseResponse?.success == true) {
+                        Toast.makeText(this@AddTransactionIncomeActivity, "Lưu giao dịch thành công!", Toast.LENGTH_SHORT).show()
+                        showSuccessDialog()
+                    } else {
+                        Toast.makeText(this@AddTransactionIncomeActivity, "Lưu giao dịch thất bại: ${expenseResponse?.message}", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this@AddTransactionIncomeActivity, "Lỗi server: ${response.message()}", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<com.example.btl_mad.data.ExpenseResponse>, t: Throwable) {
+                Toast.makeText(this@AddTransactionIncomeActivity, "Lỗi kết nối: ${t.message}", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun getTransactionTypeIdFromCategory(category: String): Int {
+        return transactionTypes.find { it.name == category }?.id ?: 0
     }
 
     private fun showCustomDatePickerDialog() {
@@ -124,35 +237,29 @@ class AddTransactionActivity : AppCompatActivity() {
         var selectedMonth = calendar.get(Calendar.MONTH)
         var selectedDay = calendar.get(Calendar.DAY_OF_MONTH)
 
-        // Định dạng tháng và năm
         val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("vi"))
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
-        // Cập nhật tiêu đề tháng và năm
         calendar.set(selectedYear, selectedMonth, 1)
         monthYearText.text = "Tháng ${selectedMonth + 1} $selectedYear"
 
-        // Tạo danh sách ngày trong tháng
         fun updateCalendar() {
             calendar.set(selectedYear, selectedMonth, 1)
-            val firstDayOfMonth = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7 // Điều chỉnh để Th2 là ngày đầu tiên
+            val firstDayOfMonth = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
             val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
 
             val days = mutableListOf<Int>()
-            // Thêm các ô trống trước ngày đầu tiên của tháng
             for (i in 0 until firstDayOfMonth) {
                 days.add(0)
             }
-            // Thêm các ngày trong tháng
             for (i in 1..daysInMonth) {
                 days.add(i)
             }
 
             val datePickerText = findViewById<TextView>(R.id.datePickerText)
 
-            // Cập nhật GridView
             val adapter = CalendarAdapter(this, days, selectedDay, selectedMonth + 1, selectedYear) { day ->
-            selectedDay = day
+                selectedDay = day
 
                 val calendar = Calendar.getInstance()
                 calendar.set(selectedYear, selectedMonth, day)
@@ -160,15 +267,13 @@ class AddTransactionActivity : AppCompatActivity() {
                 val sdf = SimpleDateFormat("EEEE, dd/MM/yyyy", Locale("vi", "VN"))
                 val formattedDate = sdf.format(calendar.time)
 
-                datePickerText.text = formattedDate.replaceFirstChar { it.uppercase() } // Viết hoa chữ cái đầu
+                datePickerText.text = formattedDate.replaceFirstChar { it.uppercase() }
             }
             calendarGrid.adapter = adapter
         }
 
-        // Cập nhật lịch ban đầu
         updateCalendar()
 
-        // Xử lý nút Previous Month
         prevMonth.setOnClickListener {
             selectedMonth--
             if (selectedMonth < 0) {
@@ -180,7 +285,6 @@ class AddTransactionActivity : AppCompatActivity() {
             updateCalendar()
         }
 
-        // Xử lý nút Next Month
         nextMonth.setOnClickListener {
             selectedMonth++
             if (selectedMonth > 11) {
@@ -192,7 +296,6 @@ class AddTransactionActivity : AppCompatActivity() {
             updateCalendar()
         }
 
-        // Xử lý khi chọn ngày
         calendarGrid.setOnItemClickListener { _, _, position, _ ->
             Log.d("CalendarDebug", "Item clicked at position: $position")
             val day = (calendarGrid.adapter as CalendarAdapter).getItem(position) as Int
@@ -201,12 +304,11 @@ class AddTransactionActivity : AppCompatActivity() {
                 selectedDay = day
                 calendar.set(selectedYear, selectedMonth, selectedDay)
                 datePickerText.text = dateFormat.format(calendar.time)
-                updateCalendar() // Cập nhật lại lịch để làm nổi bật ngày được chọn
+                updateCalendar()
                 dialog.dismiss()
             }
         }
 
-        // Hiển thị dialog ở góc dưới màn hình
         dialog.show()
         dialog.window?.let { window ->
             val params = window.attributes
@@ -238,13 +340,28 @@ class AddTransactionActivity : AppCompatActivity() {
     }
 
     private fun showCategoryPickerDialog() {
-        val categories = resources.getStringArray(R.array.expense_categories)
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Chọn phân loại")
-            .setItems(categories) { _, which ->
-                categoryText.text = categories[which]
-            }
-            .show()
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.popup_category_picker, null)
+        val dialog = MaterialAlertDialogBuilder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        val listView = dialogView.findViewById<ListView>(R.id.categoryListView)
+        val adapter = CategoryAdapter(this, transactionTypes)
+        listView.adapter = adapter
+
+        listView.setOnItemClickListener { _, _, position, _ ->
+            val selectedCategory = transactionTypes[position]
+            categoryText.text = selectedCategory.name
+            dialog.dismiss()
+        }
+
+        dialog.show()
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+        dialog.window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.8).toInt(),
+            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+        )
     }
 
     private fun showSuccessDialog() {
@@ -259,8 +376,12 @@ class AddTransactionActivity : AppCompatActivity() {
 
         btnBack.setOnClickListener {
             dialog.dismiss()
+            val intent = Intent(this, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+            startActivity(intent)
             finish()
         }
+
 
         btnCreateNew.setOnClickListener {
             dialog.dismiss()
@@ -272,7 +393,6 @@ class AddTransactionActivity : AppCompatActivity() {
         }
 
         dialog.show()
-
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
         dialog.window?.setLayout(
             (resources.displayMetrics.widthPixels * 0.8).toInt(),
