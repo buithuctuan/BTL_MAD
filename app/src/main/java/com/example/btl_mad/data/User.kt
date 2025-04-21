@@ -3,6 +3,7 @@ package com.example.btl_mad.data
 import com.google.gson.annotations.SerializedName
 
 data class User(
+    @SerializedName("id") val id: Int,
     @SerializedName("username") val username: String,
     @SerializedName("pass_") val pass_: String,
     @SerializedName("full_name") val full_name: String,
