@@ -16,7 +16,8 @@ import com.example.btl_mad.data.LoginUser
 import com.example.btl_mad.data.User
 import com.example.btl_mad.ui.forgotpassword.ForgotPasswordActivity
 
-import com.example.btl_mad.ui.fund.MainActivity
+import com.example.btl_mad.ui.main.MainActivity
+import com.example.btl_mad.ui.home.HomeFragment
 import com.example.btl_mad.ui.transaction.AddTransactionExpenseActivity
 
 import com.example.btl_mad.ui.signup.SignUpActivity
@@ -93,7 +94,7 @@ class LoginActivity : AppCompatActivity() {
 
 
                         // Chuyển đến MainActivity
-                        val intent = Intent(this@LoginActivity, AddTransactionIncomeActivity::class.java)
+                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
                         intent.putExtra("username", username)
                         startActivity(intent)
                         finish()

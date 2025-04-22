@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.btl_mad.R
 import com.example.btl_mad.data.Notification
-import com.example.btl_mad.ui.notification.adapter.NotificationAdapter
+//import com.example.btl_mad.ui.notification.adapter.NotificationAdapter
 
 class NotificationDialogFragment(private val notifications: List<Notification>) : DialogFragment() {
 

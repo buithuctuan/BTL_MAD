@@ -80,6 +80,12 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
         saveButton = findViewById(R.id.saveButton)
         iconImage = findViewById(R.id.iconImage)
 
+        val backIcon = findViewById<ImageView>(R.id.backIcon)
+        backIcon.setOnClickListener{
+            finish()
+        }
+
+
         // Thiết lập Toolbar
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)

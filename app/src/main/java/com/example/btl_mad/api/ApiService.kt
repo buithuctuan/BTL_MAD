@@ -136,5 +136,21 @@ interface ApiService {
         @Query("type") type: String
     ): PredictResponse
 
+    @GET("/api/funds_home")
+    suspend fun getFundsByUserId(@Query("user_id") userId: Int): List<Funds_home>
+
+    @GET("/api/statistics/by-category")
+    suspend fun getSpendingByCategory(@Query("user_id") userId: Int): List<CategorySpending>
+
+    @GET("/api/transactions/recent")
+    suspend fun getRecentTransactions(
+        @Query("user_id") userId: Int,
+        @Query("type") type: String,
+        @Query("limit") limit: Int = 5
+    ): List<Transaction_home>
+
+    @GET("/api/spending_summary_home")
+    suspend fun getSpendingSummary(@Query("user_id") userId: Int): SpendingSummaryResponse
+
 }
 

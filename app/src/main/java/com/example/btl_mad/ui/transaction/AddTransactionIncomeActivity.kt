@@ -85,6 +85,10 @@ class AddTransactionIncomeActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener {
             finish()
         }
+        val backIcon = findViewById<ImageView>(R.id.backIcon)
+        backIcon.setOnClickListener{
+            finish()
+        }
 
         // Thiết lập DatePicker cho toàn bộ LinearLayout
         datePickerLayout.setOnClickListener {
