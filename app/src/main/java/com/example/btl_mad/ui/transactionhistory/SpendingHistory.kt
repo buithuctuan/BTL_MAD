@@ -18,6 +18,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -26,7 +27,9 @@ import com.example.btl_mad.api.RetrofitClient
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.example.btl_mad.data.Transaction
 import com.example.btl_mad.data.Fund
+import com.example.btl_mad.data.TotalSpendingAndIncomeResponse
 import com.example.btl_mad.data.TransactionRequest
+import com.example.btl_mad.data.FundResponse
 import com.example.btl_mad.ui.utils.SharedPrefManager
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
@@ -56,17 +59,9 @@ class SpendingHistory : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.spending_history)
-        println(checkboxDateStates)
-        val totalSpending = 100000
-        val formatter = DecimalFormat("#,###")
-        val formattedSpending = formatter.format(totalSpending) + " đ"
-        val totalSpendingTextView: TextView = findViewById(R.id.totalSpendingValue)
-        totalSpendingTextView.text = formattedSpending
 
-        val totalIncomeValue = 100000
-        val formattedIncome = formatter.format(totalIncomeValue) + " đ"
-        val totalIncomeTextView: TextView = findViewById(R.id.totalIncomeValue)
-        totalIncomeTextView.text = formattedIncome
+        // Khởi tạo tổng thu và chi
+        updateTotalSpendAndIncome()
 
         // Khoi tao danh sach loai giao dich
         fetchTransactionTypes()
@@ -93,7 +88,47 @@ class SpendingHistory : AppCompatActivity() {
         spendingView = true
         updateTransactionList()
     }
+    fun updateTotalSpendAndIncome(){
+        val user_id = SharedPrefManager.getUserId(this)
+        val timeRange = when (checkboxDateStates.entries.find { it.value }?.key) {
+            "Hôm nay" -> "today"
+            "Tuần này" -> "this_week"
+            "Tháng này" -> "this_month"
+            "Tuần trước" -> "last_week"
+            "Tháng trước" -> "last_month"
+            else -> ""
+        }
+        RetrofitClient.apiService.getTotalSpendingAndIncome(user_id, timeRange)
+            .enqueue(object : Callback<TotalSpendingAndIncomeResponse> {
+                override fun onResponse(
+                    call: Call<TotalSpendingAndIncomeResponse>,
+                    response: Response<TotalSpendingAndIncomeResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        // Xử lý kết quả
+                        val totalIncomeValue = response.body()?.totalincome ?: 0
+                        val totalSpending = response.body()?.totalexpense ?: 0
 
+                        val formatter = DecimalFormat("#,###")
+
+                        val formattedSpending = formatter.format(totalSpending) + " đ"
+                        val totalSpendingTextView: TextView = findViewById(R.id.totalSpendingValue)
+                        totalSpendingTextView.text = formattedSpending
+
+                        val formattedIncome = formatter.format(totalIncomeValue) + " đ"
+                        val totalIncomeTextView: TextView = findViewById(R.id.totalIncomeValue)
+                        totalIncomeTextView.text = formattedIncome
+
+                    } else {
+                        Toast.makeText(this@SpendingHistory, "Error: ${response.code()}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<TotalSpendingAndIncomeResponse>, t: Throwable) {
+                    Toast.makeText(this@SpendingHistory, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
     fun updateTransactionList() {
         // Tạo RecyclerView và thiết lập Adapter
         val recyclerView: RecyclerView = findViewById(R.id.spendingList)
@@ -246,6 +281,7 @@ class SpendingHistory : AppCompatActivity() {
         dialog.setOnDismissListener {
             updateDateFilterDisplayField()
             updateTransactionList()
+            updateTotalSpendAndIncome()
         }
         dialog.show()
     }
@@ -287,8 +323,8 @@ class SpendingHistory : AppCompatActivity() {
 //        }
         dialogView.findViewById<ImageView>(R.id.colorCircle)?.setImageResource(R.drawable.icon_filter)
         // Cập nhật ngày giao dịch
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-        dialogView.findViewById<TextView>(R.id.date_transaction)?.text = dateFormat.format(item.dot)
+
+        dialogView.findViewById<TextView>(R.id.date_transaction)?.text = item.dot
 
         // Sự kiện nút đóng
         dialogView.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
@@ -304,9 +340,33 @@ class SpendingHistory : AppCompatActivity() {
         val dialog = AlertDialog.Builder(this)
             .setTitle("Xác nhận xóa")
             .setMessage("Bạn có chắc chắn muốn xóa giao dịch này?")
-            .setPositiveButton("Xóa") { _, _ ->
-                // Thực hiện hành động xóa ở đây, ví dụ:
-                // deleteTransaction(item)
+            .setPositiveButton("Xóa") { dialog, _ ->
+                val transactionId = item.id
+                dialog.dismiss()
+
+                RetrofitClient.apiService.deleteTransaction(transactionId)
+                    .enqueue(object : Callback<FundResponse> {
+                        override fun onResponse(
+                            call: Call<FundResponse>,
+                            response: Response<FundResponse>
+                        ) {
+                            if (response.isSuccessful) {
+                                // Nếu API trả về thành công
+                                val message = response.body()?.message ?: "Giao dịch đã được xóa thành công"
+                                updateTransactionList()
+                                showSuccessDialog(message)  // Hiển thị dialog thông báo thành công
+
+                            } else {
+                                // Nếu có lỗi khi gọi API
+                                showErrorDialog("Lỗi: ${response.code()}")  // Hiển thị dialog thông báo lỗi
+                            }
+                        }
+
+                        override fun onFailure(call: Call<FundResponse>, t: Throwable) {
+                            // Nếu có lỗi kết nối mạng
+                            showErrorDialog("Lỗi kết nối mạng: ${t.message}")  // Hiển thị dialog thông báo lỗi
+                        }
+                    })
             }
             .setNegativeButton("Hủy") { dialog, _ ->
                 dialog.dismiss() // Đóng dialog nếu người dùng chọn hủy
@@ -320,9 +380,36 @@ class SpendingHistory : AppCompatActivity() {
         // Hiển thị dialog
         dialog.show()
     }
+    private fun showSuccessDialog(message: String) {
+        // Tạo và hiển thị AlertDialog thông báo thành công
+        val successDialog = AlertDialog.Builder(this)
+            .setTitle("Thành công")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()  // Đóng dialog thông báo khi nhấn OK
+            }
+            .create()
+
+        // Hiển thị dialog thông báo thành công
+        successDialog.show()
+    }
+
+    private fun showErrorDialog(message: String) {
+        // Tạo và hiển thị AlertDialog thông báo lỗi
+        val errorDialog = AlertDialog.Builder(this)
+            .setTitle("Lỗi")
+            .setMessage(message)
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()  // Đóng dialog thông báo lỗi khi nhấn OK
+            }
+            .create()
+
+        // Hiển thị dialog thông báo lỗi
+        errorDialog.show()
+    }
     // hàm láy các loại giao dich
     fun fetchTransactionTypes() {
-        val userID = 11
+        val userID = SharedPrefManager.getUserId(this)
         val call = RetrofitClient.apiService.getTransactionTypes(userID) // giả sử userId là 5
 
         call.enqueue(object : Callback<List<Fund>> {
@@ -389,7 +476,7 @@ class SpendingAdapter(private val spendingList: List<Transaction>,
 //            "huong_thu" -> R.drawable.huong_thu
 //            else -> R.drawable.icon_filter
 //        }
-        holder.colorCircle.setImageResource(R.drawable.icon_filter)
+        holder.colorCircle.setImageResource(R.drawable.can_thiet)
         holder.itemView.setOnClickListener {
             context.showDetailTransaction(item)
         }
