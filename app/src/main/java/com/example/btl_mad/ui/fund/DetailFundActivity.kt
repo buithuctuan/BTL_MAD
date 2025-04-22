@@ -27,6 +27,7 @@ import retrofit2.Response
 import java.text.DecimalFormat
 import java.time.LocalDate
 import java.util.Calendar
+import com.example.btl_mad.ui.utils.SharedPrefManager
 
 
 class DetailFundActivity : AppCompatActivity() {
@@ -37,7 +38,7 @@ class DetailFundActivity : AppCompatActivity() {
     private var month: Int = 0
     private var year: Int = 0
     private var fundId: Int = -1
-    private var userId: Int = 5
+    private var userId: Int = -1
     private var type: String = ""
     private var search: String = ""
 
@@ -50,6 +51,7 @@ class DetailFundActivity : AppCompatActivity() {
         month = currentDate.monthValue
         year = currentDate.year
         fundId = intent.getIntExtra("FUND_ID", -1)
+        userId = SharedPrefManager.getUserId(this)
 
 
         monthSpinner = findViewById(R.id.monthSpinner)
@@ -90,34 +92,33 @@ class DetailFundActivity : AppCompatActivity() {
 
         // Lấy tháng và năm hiện tại
         val calendar = Calendar.getInstance()
-        var currentMonth = calendar.get(Calendar.MONTH) + 1  // Tháng (0-11), cộng 1 để có tháng 1-12
-        var currentYear = calendar.get(Calendar.YEAR)  // Năm hiện tại
+        month = calendar.get(Calendar.MONTH) + 1  // Tháng (0-11), cộng 1 để có tháng 1-12
+        year = calendar.get(Calendar.YEAR)  // Năm hiện tại
 
         when (selectedMonth) {
             "Tháng này" -> {
                 // Không thay đổi tháng và năm
-                getTransactions(fundId, userId, currentMonth, currentYear, type, search)
-                getFundInfo(fundId, userId, currentMonth, currentYear)
+                getTransactions(fundId, userId, month, year, type, search)
+                getFundInfo(fundId, userId, month, year)
             }
             "Tháng trước" -> {
                 // Lùi lại 1 tháng
-                currentMonth -= 1
-                if (currentMonth < 1) {
-                    currentMonth = 12
-                    currentYear -= 1  // Nếu tháng là tháng 1, giảm năm
+                month -= 1
+                if (month < 1) {
+                    month = 12
+                    year -=1
                 }
-                getTransactions(fundId, userId, currentMonth, currentYear, type, search)
-                getFundInfo(fundId, userId, currentMonth, currentYear)
+                getTransactions(fundId, userId, month, year, type, search)
+                getFundInfo(fundId, userId, month, year)
             }
             "Tháng trước nữa" -> {
-                // Lùi lại 2 tháng
-                currentMonth -= 2
-                if (currentMonth < 1) {
-                    currentMonth += 12
-                    currentYear -= 1  // Điều chỉnh năm khi lùi về tháng trước nữa
+                month -= 2
+                if (month < 1) {
+                    month += 12
+                    year -= 1  // Điều chỉnh năm khi lùi về tháng trước nữa
                 }
-                getTransactions(fundId, userId, currentMonth, currentYear, type, search)
-                getFundInfo(fundId, userId, currentMonth, currentYear)
+                getTransactions(fundId, userId, month, year, type, search)
+                getFundInfo(fundId, userId, month, year)
             }
         }
     }

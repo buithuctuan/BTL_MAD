@@ -43,17 +43,16 @@ class FundAdapter(private val fundList: List<Fund>) :
             binding.conlai.text = formatter.format(fund.days_left)
             binding.hanmucngay.text = formatter.format(fund.spending_limit) + "/ngày"
 
+            val iconFileName = fund.icon  // Đây là tên file không có đuôi (ví dụ: "fund_icon_1")
             val resourceId = binding.imageView.context.resources.getIdentifier(
-                fund.icon,
-                "drawable",
+                iconFileName,  // Không có đuôi ".png"
+                "drawable",  // Thư mục tài nguyên drawable
                 binding.imageView.context.packageName
             )
 
-            // Nếu có tài nguyên drawable hợp lệ, sử dụng tài nguyên đó
             if (resourceId != 0) {
                 binding.imageView.setImageResource(resourceId)
             } else {
-                // Nếu không tìm thấy tài nguyên, đặt ảnh mặc định
                 binding.imageView.setImageResource(R.drawable.fund_icon_4)
             }
         }

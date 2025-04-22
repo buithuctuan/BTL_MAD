@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.transition.AutoTransition
 import android.transition.TransitionManager
 import android.widget.Toast
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.btl_mad.R
@@ -18,6 +19,8 @@ import com.example.btl_mad.data.Fund
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.example.btl_mad.ui.utils.SharedPrefManager
+
 class ListFund : AppCompatActivity() {
     private lateinit var textToggleProgress: TextView
     private var isVisible = false
@@ -25,7 +28,7 @@ class ListFund : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.fund_list)
-
+        var userId = SharedPrefManager.getUserId(this)
         textToggleProgress = findViewById(R.id.textToggleProgress)
 
         // Gán sự kiện click để ẩn/hiện các layout có tag = "progressLayout"
@@ -40,7 +43,7 @@ class ListFund : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         // Giả sử user_id là 5
-        val userId = 5
+//        val userId = 5
 
         // Gọi API để lấy danh sách các quỹ
         getFundsFromAPI(userId)
@@ -68,7 +71,6 @@ class ListFund : AppCompatActivity() {
                     val funds = response.body()
                     funds?.let {
                         val adapter = FundAdapter(it)
-
                         findViewById<RecyclerView>(R.id.recyclerViewFunds).adapter = adapter
                     }
                 } else {
@@ -77,6 +79,7 @@ class ListFund : AppCompatActivity() {
             }
 
             override fun onFailure(call: Call<List<Fund>>, t: Throwable) {
+                println(t.message)
                 Toast.makeText(this@ListFund, "Failed to load funds: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
