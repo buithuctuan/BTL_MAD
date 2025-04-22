@@ -69,5 +69,6 @@
         <activity android:name=".ui.fund.DetailFundActivity" />
         <activity android:name=".ui.notification.ListNotification" />
         <activity android:name=".ui.transactionhistory.SpendingHistory"/>
+        <activity android:name=".ui.transactionhistory.ModifyTransaction"/>
     </application>
 </manifest>

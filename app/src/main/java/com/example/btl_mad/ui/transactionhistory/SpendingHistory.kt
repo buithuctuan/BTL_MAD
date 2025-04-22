@@ -1,6 +1,7 @@
 package com.example.btl_mad.ui.transactionhistory
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import com.example.btl_mad.R
 
 import android.os.Bundle
@@ -312,6 +313,22 @@ class SpendingHistory : AppCompatActivity() {
         // Cập nhật nút xóa
         dialogView.findViewById<Button>(R.id.deleteButton)?.setOnClickListener{
             showConfirmDeleteTransaction(item)
+        }
+        // cập nhat nut chinh sua giao dich
+        // Cập nhật nút xóa
+        dialogView.findViewById<Button>(R.id.modifyButton)?.setOnClickListener{
+            val intent = Intent(this@SpendingHistory, ModifyTransaction::class.java)
+            intent.putExtra("id", item.id)
+            intent.putExtra("user_iD", item.user_id)
+            intent.putExtra("dot", item.dot)
+            intent.putExtra("in_out_budget", item.in_out_budget)
+            intent.putExtra("amount", item.amount)
+            intent.putExtra("transaction_type_name", item.transaction_type_name)
+            intent.putExtra("note", item.note)
+            intent.putExtra("transaction_type_id", item.transaction_type_id)
+            intent.putExtra("current_balance", item.current_balance)
+            intent.putExtra("screenshot", item.screenshot)
+            startActivity(intent)
         }
         // Cập nhật màu sắc vòng tròn
 //        val imageResId = when (item.color_code) {

@@ -103,4 +103,11 @@ interface ApiService {
         @Path("id") Id: Int
     ): Call<FundResponse>
 
+    // sua giao dich
+    @POST("/api/modifyTransaction")
+    fun updateTransaction(
+        @Body request: Transaction
+    ): Call<FundResponse>
+
+
 }
