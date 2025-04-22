@@ -88,4 +88,11 @@ interface ApiService {
     // Thêm chi tiêu
     @POST("api/expense")
     fun saveExpense(@Body request: ExpenseRequest): Call<ExpenseResponse>
+    @GET("api/getListTransactions/{userId}")
+    fun getListTransactions(
+        @Path("userId") userId: Int,
+        @Query("in_out_budget") inOutBudget: String,
+        @Query("time_range") timeRange: String,
+        @Query("transaction_type_id") transactionTypeIds: List<String>
+    ): Call<List<Transaction>>
 }
