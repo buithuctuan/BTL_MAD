@@ -10,4 +10,9 @@
     <color name="tu_thien">#E26FA3</color>
     <color name="tu_do">#96AD5C</color>
     <color name="grey">#7A7777</color>
+    <color name="warning_red">#FFF0F0</color>
+    <color name="safe_green">#E0F8D8</color>
+    <color name="neutral_yellow">#FFFBE5</color>
+    <color name="warning_yellow">#FFFACD</color> <!-- màu mặc định ban đầu -->
+
 </resources>

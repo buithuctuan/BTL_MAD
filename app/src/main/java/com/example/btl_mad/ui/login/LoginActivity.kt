@@ -13,8 +13,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.btl_mad.R
 import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.LoginUser
+import com.example.btl_mad.data.User
 import com.example.btl_mad.ui.forgotpassword.ForgotPasswordActivity
-import com.example.btl_mad.ui.fund.MainActivity
+import com.example.btl_mad.ui.main.MainActivity
 import com.example.btl_mad.ui.signup.SignUpActivity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -78,12 +79,13 @@ class LoginActivity : AppCompatActivity() {
                         Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
 
                         // Lưu thông tin người dùng vào SharedPreferences
-                        val user = responseBody?.get("user") as? Map<*, *>
-                        if (user != null) {
-                            sharedPreferences.edit()
-                                .putString("user", Gson().toJson(user))
-                                .apply()
-                        }
+                        val userRaw = responseBody?.get("user")
+                        val userJson = Gson().toJson(userRaw)
+                        val user = Gson().fromJson(userJson, User::class.java)
+
+                        sharedPreferences.edit()
+                            .putString("user", Gson().toJson(user))
+                            .apply()
 
                         // Chuyển đến MainActivity
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)

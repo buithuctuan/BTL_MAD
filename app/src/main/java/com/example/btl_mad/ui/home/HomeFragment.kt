@@ -3,15 +3,18 @@ package com.example.btl_mad.ui.home
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.btl_mad.R
 import com.example.btl_mad.data.Category
+import com.example.btl_mad.data.Notification
 import com.example.btl_mad.data.Transaction
 import com.example.btl_mad.ui.BaseFragment
 import com.example.btl_mad.ui.home.adapter.CategoryAdapter
 import com.example.btl_mad.ui.home.adapter.TransactionAdapter
+import com.example.btl_mad.ui.notification.NotificationDialogFragment
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.data.Entry
@@ -29,37 +32,48 @@ class HomeFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // 🔹 Lấy user từ SharedPreferences
+        // 🔹 Lời chào người dùng
+        val tvGreeting = view.findViewById<TextView>(R.id.tvGreeting)
         val sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val userJson = sharedPref.getString("user", null)
-
-        val tvGreeting = view.findViewById<TextView>(R.id.tvGreeting)
 
         userJson?.let {
             val type = object : TypeToken<Map<String, Any>>() {}.type
             val userMap: Map<String, Any> = Gson().fromJson(it, type)
-
             val username = userMap["username"] as? String ?: "Người dùng"
             tvGreeting.text = "Xin chào, $username"
         }
 
-        // 🔹 RecyclerView danh mục
+        // 🔹 Xử lý nút thông báo
+        val btnNotification = view.findViewById<ImageView>(R.id.btnNotification)
+        btnNotification.setOnClickListener {
+            // ⚠️ Demo danh sách tạm, bạn có thể gọi API thực tại đây
+            val demoNotifications = listOf(
+                Notification(1, 1, "Ưu đãi mới", "Bạn nhận được voucher 50K", "19:00 19/04/2025"),
+                Notification(2, 1, "Cảnh báo", "Chi tiêu vượt hạn mức tháng 4", "17:35 18/04/2025")
+            )
+            val popup = NotificationDialogFragment(demoNotifications)
+            popup.show(parentFragmentManager, "notification_popup")
+        }
+
+        // 🔹 Danh sách danh mục chi tiêu
         val categoryRecycler = view.findViewById<RecyclerView>(R.id.rvCategories)
         val categories = listOf(
-            Category("Cần thiết", 1000000, 55),
-            Category("Đào tạo", 1000000, 10),
-            Category("Hưởng thụ", 1000000, 10),
-            Category("Tự do", 1000000, 5)
+            Category("Cần thiết", 1_000_000, 55),
+            Category("Đào tạo", 1_000_000, 10),
+            Category("Hưởng thụ", 1_000_000, 10),
+            Category("Tự do", 1_000_000, 5)
         )
-        categoryRecycler.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        categoryRecycler.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         categoryRecycler.adapter = CategoryAdapter(categories)
 
-        // 🔹 RecyclerView giao dịch
+        // 🔹 Danh sách giao dịch gần đây
         val transactionRecycler = view.findViewById<RecyclerView>(R.id.rvTransactions)
         val transactions = listOf(
-            Transaction("Tiền siêu thị", 250000, "03/06/23"),
-            Transaction("Tiền cafe", 50000, "04/06/23"),
-            Transaction("Đi chợ", 300000, "05/06/23")
+            Transaction("Tiền siêu thị", 250_000, "03/06/23"),
+            Transaction("Tiền cafe", 50_000, "04/06/23"),
+            Transaction("Đi chợ", 300_000, "05/06/23")
         )
         transactionRecycler.layoutManager = LinearLayoutManager(requireContext())
         transactionRecycler.adapter = TransactionAdapter(transactions)

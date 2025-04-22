@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.btl_mad.R
 import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.Question
-import com.example.btl_mad.data.User
+import com.example.btl_mad.data.UserRegisterRequest
 import com.example.btl_mad.ui.login.LoginActivity
 import com.example.btl_mad.ui.main.MainActivity
 import kotlinx.coroutines.CoroutineScope
@@ -129,7 +129,7 @@ class SignUpActivity : AppCompatActivity() {
             }
 
             // Tạo đối tượng User
-            val user = User(
+            val user = UserRegisterRequest(
                 username = username,
                 pass_ = password,
                 full_name = fullName,

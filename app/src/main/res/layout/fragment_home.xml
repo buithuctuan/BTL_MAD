@@ -4,6 +4,7 @@
     android:id="@+id/homeScroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     android:padding="16dp">
 
     <LinearLayout
@@ -44,9 +45,44 @@
                 android:src="@drawable/ic_notification" />
         </LinearLayout>
 
+        <!-- Tổng chi tháng này -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="12dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/blue">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Tổng chi tháng này"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/tvTotalSpendingHome"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 đ"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
         <!-- Danh mục chi tiêu -->
         <TextView
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="Chi theo phân loại"
             android:textStyle="bold"
             android:layout_width="match_parent"
