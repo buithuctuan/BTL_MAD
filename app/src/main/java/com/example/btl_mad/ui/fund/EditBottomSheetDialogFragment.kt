@@ -21,6 +21,7 @@ import com.example.btl_mad.data.FundResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.example.btl_mad.ui.utils.SharedPrefManager
 
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -31,8 +32,9 @@ class EditBottomSheetDialogFragment : BottomSheetDialogFragment() {
     private lateinit var selectedIcon: ImageView
     private lateinit var fundNameEditText: EditText
     private lateinit var limitEditText: EditText
-    private var fundId: Int = 0
-    private var userId: Int = 0
+    private var fundId: Int = -1
+    private var userId: Int = -1
+
     private var icon: String = ""
     private var name: String = ""
     private var budget: Int = 0
@@ -57,8 +59,7 @@ class EditBottomSheetDialogFragment : BottomSheetDialogFragment() {
     ): View? {
         // Inflate layout cho BottomSheet
         val view = inflater.inflate(R.layout.dialog_edit, container, false)
-
-
+        userId = SharedPrefManager.getUserId(requireContext())
         iconSelector = view.findViewById(R.id.iconSelector)
         selectedIcon = view.findViewById(R.id.selectedIcon)
 
@@ -121,7 +122,7 @@ class EditBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         // Gửi dữ liệu lên API để cập nhật
         updateTransactionTypeInAPI(fundId, updatedName, userId,
-            iconList[pos_icon].toString(), updatedBudget)
+            "fund_icon_$pos_icon", updatedBudget)
     }
 
     private fun updateTransactionTypeInAPI(fundId: Int, name: String, user_id: Int, icon: String, budget: Float) {
@@ -223,7 +224,7 @@ class EditBottomSheetDialogFragment : BottomSheetDialogFragment() {
 
         gridView.setOnItemClickListener { _, _, position, _ ->
             selectedIcon.setImageResource(iconList[position])
-            pos_icon = position
+            pos_icon = position + 1
             dialog.dismiss()
         }
 

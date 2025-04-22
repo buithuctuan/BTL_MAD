@@ -47,6 +47,13 @@ interface ApiService {
         @Path("user_id") userId: Int
     ): Call<List<Notification>>
 
+    @POST("/api/notifications")
+    fun addNotification(
+        @Query("user_id") name: Int,
+        @Query("title") title: String,
+        @Query("content") content: String
+    ): Call<FundResponse>
+
     // GET transaction types by Path (trả về Fund)
     @GET("/api/transaction_types/{user_id}")
     fun getTransactionTypes(
@@ -87,7 +94,7 @@ interface ApiService {
     fun addFund(
         @Query("name") name: String,
         @Query("user_id") userId: Int,
-        @Query("icon") icon: Int,
+        @Query("icon") icon: String,
         @Query("budget") budget: Float
     ): Call<FundResponse>
 
@@ -108,6 +115,7 @@ interface ApiService {
     // Thêm chi tiêu
     @POST("api/expense")
     fun saveExpense(@Body request: ExpenseRequest): Call<ExpenseResponse>
+
 
     @GET("/api/statistics/pie")
     suspend fun getPieData(
@@ -151,6 +159,27 @@ interface ApiService {
 
     @GET("/api/spending_summary_home")
     suspend fun getSpendingSummary(@Query("user_id") userId: Int): SpendingSummaryResponse
+
+    @POST("api/getListTransactions")
+    fun getListTransactions(
+        @Body request: TransactionRequest): Call<List<Transaction>>
+    // lấy tổng số tiền chi và thu trong một khoảng thời gian
+    @GET("/api/getTotalSpendingAndIncome/{user_id}")
+    fun getTotalSpendingAndIncome(
+        @Path("user_id") userId: Int,
+        @Query("filter_date") filterDate: String
+    ): Call<TotalSpendingAndIncomeResponse>
+    // xoa giao dich
+    @DELETE("/api/deleteTransaction/{id}")
+    fun deleteTransaction(
+        @Path("id") Id: Int
+    ): Call<FundResponse>
+
+    // sua giao dich
+    @POST("/api/modifyTransaction")
+    fun updateTransaction(
+        @Body request: Transaction
+    ): Call<FundResponse>
 
 }
 

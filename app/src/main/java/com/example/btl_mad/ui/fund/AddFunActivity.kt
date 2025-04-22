@@ -1,6 +1,5 @@
 package com.example.btl_mad.ui.fund
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
@@ -21,13 +20,14 @@ import com.example.btl_mad.data.FundResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.example.btl_mad.ui.utils.SharedPrefManager
 
 
 class AddFundActivity : AppCompatActivity() {
 
     private lateinit var iconSelector: LinearLayout
     private lateinit var selectedIcon: ImageView
-    private var pos_icon: Int = 0
+    private var pos_icon: Int = 1
 
 
     private val iconList = listOf(
@@ -74,13 +74,14 @@ class AddFundActivity : AppCompatActivity() {
             Toast.makeText(this, "Hạn mức chi tiêu phải là một số hợp lệ và lớn hơn 0", Toast.LENGTH_SHORT).show()
             return
         }
-        val selectedIcon = iconList[pos_icon]
+        val selectedIcon = "fund_icon_$pos_icon"
         // Gọi API để thêm hũ chi tiêu nếu mọi thông tin hợp lệ
         addFund(fundName, limit, selectedIcon)
     }
 
-    private fun addFund(fundName: String, limit: Float, selectedIcon: Int) {
-        val userId = 5
+    private fun addFund(fundName: String, limit: Float, selectedIcon: String) {
+        val userId =  SharedPrefManager.getUserId(this)
+
 
         // Gọi API
         RetrofitClient.apiService.addFund( fundName, userId,selectedIcon, limit).enqueue(object : Callback<FundResponse> {
@@ -162,7 +163,7 @@ class AddFundActivity : AppCompatActivity() {
 
         gridView.setOnItemClickListener { _, _, position, _ ->
             selectedIcon.setImageResource(iconList[position])
-            pos_icon = position
+            pos_icon = position+1
             dialog.dismiss()
         }
 
