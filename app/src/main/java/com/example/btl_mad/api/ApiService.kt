@@ -1,31 +1,13 @@
 package com.example.btl_mad.api
 
-import com.example.btl_mad.data.Fund
-import com.example.btl_mad.data.FundDetail
-import com.example.btl_mad.data.FundInfo
-import com.example.btl_mad.data.FundResponse
-import com.example.btl_mad.data.LoginUser
-import com.example.btl_mad.data.Notification
-import com.example.btl_mad.data.Question
-import com.example.btl_mad.data.User
-import com.example.btl_mad.data.VerifyForgotPasswordRequest
-import com.example.btl_mad.data.ResetPasswordRequest
-import com.example.btl_mad.data.TransFund
-import com.example.btl_mad.data.VerifyResponse
+import com.example.btl_mad.data.*
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
 import retrofit2.Call
-import retrofit2.http.DELETE
-import retrofit2.http.PUT
-import retrofit2.http.Path
-import retrofit2.http.Query
-
+import retrofit2.http.*
 
 interface ApiService {
     @POST("api/users/register")
-    suspend fun registerUser(@Body user: User): Response<Map<String, String>>
+    suspend fun registerUser(@Body user: UserRegisterRequest): Response<Map<String, String>>
 
     @POST("api/users/login")
     suspend fun loginUser(@Body user: LoginUser): Response<Map<String, Any>>
@@ -45,11 +27,19 @@ interface ApiService {
         @Path("user_id") userId: Int
     ): Call<List<Notification>>
 
-    // API GET để lấy transaction types với user_id và từ khóa tìm kiếm
+    // GET transaction types by Path (trả về Fund)
     @GET("/api/transaction_types/{user_id}")
     fun getTransactionTypes(
-        @Path("user_id") userId: Int): Call<List<Fund>>
+        @Path("user_id") userId: Int
+    ): Call<List<Fund>>
 
+    // GET transaction types by Query (trả về TransactionType)
+    @GET("api/transaction_types")
+    fun getTransactionTypesByQuery(
+        @Query("user_id") userId: Int
+    ): Call<List<TransactionType>>
+
+    // Giao dịch quỹ
     @GET("/api/transactions-fund")
     fun getTransactionsFund(
         @Query("fund_id") fundId: Int,
@@ -95,4 +85,10 @@ interface ApiService {
         @Path("id") Id: Int
     ): Call<FundResponse>
 
+    // Thêm chi tiêu
+    @POST("api/expense")
+    fun saveExpense(@Body request: ExpenseRequest): Call<ExpenseResponse>
+    @POST("api/getListTransactions")
+    fun getListTransactions(
+        @Body request: TransactionRequest): Call<List<Transaction>>
 }
