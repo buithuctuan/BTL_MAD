@@ -1,5 +1,6 @@
 package com.example.btl_mad.api
 
+import com.example.btl_mad.data.Fund
 import com.example.btl_mad.data.LoginUser
 import com.example.btl_mad.data.Question
 import com.example.btl_mad.data.VerifyForgotPasswordRequest
@@ -14,6 +15,7 @@ import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ApiService {
@@ -60,5 +62,7 @@ interface ApiService {
         @Query("type") type: String
     ): PredictResponse
 
+    @GET("/api/transaction_types/{user_id}")
+    suspend fun getTransactionTypes(@Path("user_id") userId: Int): List<Fund>
 
 }

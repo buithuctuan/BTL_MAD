@@ -1,6 +1,7 @@
 package com.example.btl_mad.data.statistics
 
 import com.example.btl_mad.api.RetrofitClient
+import com.example.btl_mad.data.Fund
 
 class StatisticRepository {
     suspend fun getPieData(userId: Int, type: String, period: String): List<StatisticPieEntry> {
@@ -18,6 +19,11 @@ class StatisticRepository {
     suspend fun getPredictedSpending(userId: Int, type: String): PredictResponse {
         return RetrofitClient.apiService.getPrediction(userId, type)
     }
+
+    suspend fun getTransactionTypes(userId: Int): List<Fund> {
+        return RetrofitClient.apiService.getTransactionTypes(userId)
+    }
+
 
 }
 
