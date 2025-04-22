@@ -99,4 +99,16 @@ interface ApiService {
     @POST("api/getListTransactions")
     fun getListTransactions(
         @Body request: TransactionRequest): Call<List<Transaction>>
+    // lấy tổng số tiền chi và thu trong một khoảng thời gian
+    @GET("/api/getTotalSpendingAndIncome/{user_id}")
+    fun getTotalSpendingAndIncome(
+        @Path("user_id") userId: Int,
+        @Query("filter_date") filterDate: String
+    ): Call<TotalSpendingAndIncomeResponse>
+    // xoa giao dich
+    @DELETE("/api/deleteTransaction/{id}")
+    fun deleteTransaction(
+        @Path("id") Id: Int
+    ): Call<FundResponse>
+
 }
