@@ -1,5 +1,6 @@
 package com.example.btl_mad.data
 
+
 import com.google.gson.annotations.SerializedName
 
 data class Transaction(
@@ -14,3 +15,4 @@ data class Transaction(
     @SerializedName("current_balance") val current_balance: Int = 0,
     @SerializedName("screenshot") val screenshot: String = ""  // Có thể là null (hình ảnh không bắt buộc)
 )
+
