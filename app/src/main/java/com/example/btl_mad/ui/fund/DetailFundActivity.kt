@@ -27,6 +27,7 @@ import retrofit2.Response
 import java.text.DecimalFormat
 import java.time.LocalDate
 import java.util.Calendar
+import com.example.btl_mad.ui.utils.SharedPrefManager
 
 
 class DetailFundActivity : AppCompatActivity() {
