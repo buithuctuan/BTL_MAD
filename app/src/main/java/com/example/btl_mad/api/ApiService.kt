@@ -77,7 +77,7 @@ interface ApiService {
     fun addFund(
         @Query("name") name: String,
         @Query("user_id") userId: Int,
-        @Query("icon") icon: Int,
+        @Query("icon") icon: String,
         @Query("budget") budget: Float
     ): Call<FundResponse>
 
