@@ -27,6 +27,13 @@ interface ApiService {
         @Path("user_id") userId: Int
     ): Call<List<Notification>>
 
+    @POST("/api/notifications")
+    fun addNotification(
+        @Query("user_id") name: Int,
+        @Query("title") title: String,
+        @Query("content") content: String
+    ): Call<FundResponse>
+
     // GET transaction types by Path (trả về Fund)
     @GET("/api/transaction_types/{user_id}")
     fun getTransactionTypes(
@@ -88,7 +95,20 @@ interface ApiService {
     // Thêm chi tiêu
     @POST("api/expense")
     fun saveExpense(@Body request: ExpenseRequest): Call<ExpenseResponse>
+
     @POST("api/getListTransactions")
     fun getListTransactions(
         @Body request: TransactionRequest): Call<List<Transaction>>
+    // lấy tổng số tiền chi và thu trong một khoảng thời gian
+    @GET("/api/getTotalSpendingAndIncome/{user_id}")
+    fun getTotalSpendingAndIncome(
+        @Path("user_id") userId: Int,
+        @Query("filter_date") filterDate: String
+    ): Call<TotalSpendingAndIncomeResponse>
+    // xoa giao dich
+    @DELETE("/api/deleteTransaction/{id}")
+    fun deleteTransaction(
+        @Path("id") Id: Int
+    ): Call<FundResponse>
+
 }

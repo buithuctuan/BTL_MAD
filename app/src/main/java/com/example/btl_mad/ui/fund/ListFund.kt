@@ -19,6 +19,8 @@ import com.example.btl_mad.data.Fund
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import com.example.btl_mad.ui.utils.SharedPrefManager
+
 class ListFund : AppCompatActivity() {
     private lateinit var textToggleProgress: TextView
     private var isVisible = false

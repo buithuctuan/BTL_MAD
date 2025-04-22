@@ -1,5 +1,6 @@
 package com.example.btl_mad.ui.transaction
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -22,6 +23,7 @@ import androidx.core.content.FileProvider
 import com.example.btl_mad.R
 import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.ExpenseRequest
+import com.example.btl_mad.data.FundInfo
 import com.example.btl_mad.data.TransactionType
 import com.example.btl_mad.data.User
 import com.example.btl_mad.ui.fund.AddFundActivity
@@ -32,9 +34,12 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.File
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import androidx.appcompat.app.AlertDialog
+import com.example.btl_mad.data.FundResponse
 
 class AddTransactionExpenseActivity : AppCompatActivity() {
 
@@ -49,6 +54,8 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
     private var cameraImageUri: Uri? = null
     private var transactionTypes: List<TransactionType> = emptyList()
+    private var transaction_type_id = -1
+    private var user_id = -1
 
     private val pickImageLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let { iconImage.setImageURI(it) }
@@ -177,10 +184,10 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
             Toast.makeText(this, "Không tìm thấy thông tin người dùng!", Toast.LENGTH_SHORT).show()
             return
         }
-
+        user_id = userId
         val amountValue = amount.toDoubleOrNull() ?: 0.0
         val transactionTypeId = getTransactionTypeIdFromCategory(category)
-
+        transaction_type_id = transactionTypeId
         val screenshotPath = cameraImageUri?.let { uri ->
             uri.toString()
         }
@@ -206,6 +213,7 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
                     val expenseResponse = response.body()
                     if (expenseResponse?.success == true) {
                         Toast.makeText(this@AddTransactionExpenseActivity, "Lưu giao dịch thành công!", Toast.LENGTH_SHORT).show()
+                        checkIfOverBudget()
                         showSuccessDialog()
                     } else {
                         Toast.makeText(this@AddTransactionExpenseActivity, "Lưu giao dịch thất bại: ${expenseResponse?.message}", Toast.LENGTH_SHORT).show()
@@ -219,6 +227,94 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
                 Toast.makeText(this@AddTransactionExpenseActivity, "Lỗi kết nối: ${t.message}", Toast.LENGTH_SHORT).show()
             }
         })
+    }
+
+    private fun checkIfOverBudget(){
+        // Gọi API sử dụng Retrofit
+        val calendar = Calendar.getInstance()
+        val month = calendar.get(Calendar.MONTH) + 1
+        val year = calendar.get(Calendar.YEAR)
+        RetrofitClient.apiService.getFundInfo(transaction_type_id, user_id, month, year).enqueue(object : Callback<List<FundInfo>> {
+
+            override fun onResponse(call: Call<List<FundInfo>>, response: Response<List<FundInfo>>) {
+                if (response.isSuccessful && response.body() != null) {
+                    val fundInfoList = response.body() // Lấy danh sách các FundInfo
+
+                    // Kiểm tra danh sách không rỗng
+                    if (fundInfoList.isNullOrEmpty()) {
+                        Toast.makeText(this@AddTransactionExpenseActivity, "Hũ này chưa có giao dịch", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val fundInfo = fundInfoList.firstOrNull()
+
+                        if (fundInfo != null) {
+                            val total_spent = fundInfo.total_spent as Int
+                            val budget = fundInfo.budget as Int
+                            println(total_spent)
+                            println(budget)
+                            if(total_spent > budget){
+                                var over = total_spent - budget
+                                var title = "Vượt quá mức chi tiêu"
+                                var content =  "Hũ chi tiêu \"$fundInfo.name\" tháng này đã vượt quá $over VNĐ"
+                                addNotification(title, content, fundInfo.name, over)
+                            }
+
+                        } else {
+                            Toast.makeText(this@AddTransactionExpenseActivity, "Hũ này chưa có giao dịch", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                } else {
+                    Toast.makeText(this@AddTransactionExpenseActivity, "Lỗi API", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<FundInfo>>, t: Throwable) {
+                Toast.makeText(this@AddTransactionExpenseActivity, "Lỗi kết nối API", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    private fun addNotification(noti_title: String, noti_content: String, fund_name: String, over: Int){
+        RetrofitClient.apiService.addNotification(user_id, noti_title, noti_content).enqueue(object : Callback<FundResponse> {
+            override fun onResponse(call: Call<FundResponse>, response: Response<FundResponse>) {
+                if (response.isSuccessful) {
+                    val fundResponse = response.body()
+                    if (fundResponse != null) {
+                        if (fundResponse.status == 200) {
+                            showAlert(fund_name, over)
+                        } else {
+                            // Hiển thị thông báo lỗi
+                            Toast.makeText(this@AddTransactionExpenseActivity, fundResponse.message, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } else {
+                    Toast.makeText(this@AddTransactionExpenseActivity, "Có lỗi khi thêm thông báo", Toast.LENGTH_SHORT).show()
+                }
+            }
+
+            override fun onFailure(call: Call<FundResponse>, t: Throwable) {
+                Toast.makeText(this@AddTransactionExpenseActivity, "Lỗi kết nối API", Toast.LENGTH_SHORT).show()
+            }
+        })
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun showAlert(name: String, money: Int) {
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.alert_over_budget_dialog, null)
+
+        val messageTextView = dialogView.findViewById<TextView>(R.id.message)
+        messageTextView.text = "Hũ chi tiêu \"$name\" tháng này đã vượt quá $money VNĐ"
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialogView.findViewById<Button>(R.id.btnCreateNew).setOnClickListener {
+            dialog.dismiss()
+        }
+
+        dialog.show()
     }
 
     private fun getTransactionTypeIdFromCategory(category: String): Int {
