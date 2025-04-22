@@ -230,12 +230,10 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
     }
 
     private fun checkIfOverBudget(){
-        // Gọi API sử dụng Retrofit
         val calendar = Calendar.getInstance()
         val month = calendar.get(Calendar.MONTH) + 1
         val year = calendar.get(Calendar.YEAR)
         RetrofitClient.apiService.getFundInfo(transaction_type_id, user_id, month, year).enqueue(object : Callback<List<FundInfo>> {
-
             override fun onResponse(call: Call<List<FundInfo>>, response: Response<List<FundInfo>>) {
                 if (response.isSuccessful && response.body() != null) {
                     val fundInfoList = response.body() // Lấy danh sách các FundInfo
@@ -247,15 +245,14 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
                         val fundInfo = fundInfoList.firstOrNull()
 
                         if (fundInfo != null) {
-                            val total_spent = fundInfo.total_spent as Int
-                            val budget = fundInfo.budget as Int
-                            println(total_spent)
-                            println(budget)
+                            val total_spent = fundInfo.total_spent
+                            val budget = fundInfo.budget
                             if(total_spent > budget){
                                 var over = total_spent - budget
+                                var fundName = fundInfo.name
                                 var title = "Vượt quá mức chi tiêu"
-                                var content =  "Hũ chi tiêu \"$fundInfo.name\" tháng này đã vượt quá $over VNĐ"
-                                addNotification(title, content, fundInfo.name, over)
+                                var content =  "Hũ chi tiêu \"$fundName\" tháng này đã vượt quá $over VNĐ"
+                                addNotification(title, content, fundName, over)
                             }
 
                         } else {
@@ -283,7 +280,6 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
                         if (fundResponse.status == 200) {
                             showAlert(fund_name, over)
                         } else {
-                            // Hiển thị thông báo lỗi
                             Toast.makeText(this@AddTransactionExpenseActivity, fundResponse.message, Toast.LENGTH_SHORT).show()
                         }
                     }
