@@ -1,15 +1,14 @@
 package com.example.btl_mad.ui.transactionhistory
 
+import android.annotation.SuppressLint
 import com.example.btl_mad.R
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,12 +24,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.btl_mad.api.RetrofitClient
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.example.btl_mad.ui.login.LoginActivity
 import com.example.btl_mad.data.Transaction
 import com.example.btl_mad.data.Fund
+import com.example.btl_mad.data.TransactionRequest
+import com.example.btl_mad.ui.utils.SharedPrefManager
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 
@@ -52,11 +51,12 @@ class SpendingHistory : AppCompatActivity() {
         "Tháng trước" to false,
         "Thời gian khác" to false
     )
+
     var spendingView = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.spending_history)
-
+        println(checkboxDateStates)
         val totalSpending = 100000
         val formatter = DecimalFormat("#,###")
         val formattedSpending = formatter.format(totalSpending) + " đ"
@@ -98,13 +98,25 @@ class SpendingHistory : AppCompatActivity() {
         // Tạo RecyclerView và thiết lập Adapter
         val recyclerView: RecyclerView = findViewById(R.id.spendingList)
         recyclerView.layoutManager = LinearLayoutManager(this)
-
         // Gọi API để lấy danh sách giao dịch
+        val timeRange = when (checkboxDateStates.entries.find { it.value }?.key) {
+            "Hôm nay" -> "today"
+            "Tuần này" -> "this_week"
+            "Tháng này" -> "this_month"
+            "Tuần trước" -> "last_week"
+            "Tháng trước" -> "last_month"
+            else -> ""
+        }
+        val filteredIds = checkboxStates.filter { it.value.second }  // Lọc theo giá trị thứ 2 (true)
+            .map { it.value.first }
+        val transactionTypeIdsChose = listOf(*filteredIds.toTypedArray())
+        val userId = SharedPrefManager.getUserId(this) // ID người dùng
+        val inOutBudget = if (spendingView) "chi" else "thu" // Loại giao dịch (chi tiêu)
+        val transactionTypeIds = transactionTypeIdsChose // Danh sách ID loại giao dịch
+        val transactionReq = TransactionRequest(user_id =userId, in_out_budget = inOutBudget, time_range = timeRange, transaction_type_ids = transactionTypeIds)
+        Log.d("TransactionRequest", "User ID: $transactionReq")
         val call = RetrofitClient.apiService.getListTransactions(
-            userId = 11, // ID người dùng
-            inOutBudget = "chi", // Loại giao dịch (chi tiêu)
-            timeRange = "", // Thời gian (tuần trước)
-            transactionTypeIds = listOf("30") // Danh sách ID loại giao dịch
+            transactionReq
         )
 
         call.enqueue(object : Callback<List<Transaction>> {
@@ -117,7 +129,7 @@ class SpendingHistory : AppCompatActivity() {
                         recyclerView.adapter = adapter
                     }
                 } else {
-                    Log.e("API Error", "Response error: ${response.code()}")
+                    Log.e("API Error", "Response error API getlist: ${response.code()}")
                 }
             }
 
@@ -159,11 +171,14 @@ class SpendingHistory : AppCompatActivity() {
                 (resources.displayMetrics.heightPixels * 0.5).toInt()
             bottomSheet?.setBackgroundResource(R.drawable.filter_dialog)
         }
-
+        dialog.setOnDismissListener{
+            updateTransactionList()
+        }
         // Sự kiện nút đóng
         dialogView.findViewById<ImageButton>(R.id.closeButton)?.setOnClickListener {
             dialog.dismiss()
         }
+
         dialog.show()
     }
 
@@ -207,6 +222,7 @@ class SpendingHistory : AppCompatActivity() {
                             if (cb != buttonView) {
                                 cb.isChecked = false
                                 checkboxDateStates[cb.text.toString()] = false
+
                             }
                         }
                     }
@@ -229,6 +245,7 @@ class SpendingHistory : AppCompatActivity() {
         }
         dialog.setOnDismissListener {
             updateDateFilterDisplayField()
+            updateTransactionList()
         }
         dialog.show()
     }
@@ -261,14 +278,14 @@ class SpendingHistory : AppCompatActivity() {
             showConfirmDeleteTransaction(item)
         }
         // Cập nhật màu sắc vòng tròn
-        val imageResId = when (item.color_code) {
-            "can_thiet" -> R.drawable.can_thiet
-            "dao_tao" -> R.drawable.dao_tao
-            "tiet_kiem" -> R.drawable.tiet_kiem
-            "huong_thu" -> R.drawable.huong_thu
-            else -> R.drawable.icon_filter
-        }
-        dialogView.findViewById<ImageView>(R.id.colorCircle)?.setImageResource(imageResId)
+//        val imageResId = when (item.color_code) {
+//            "can_thiet" -> R.drawable.can_thiet
+//            "dao_tao" -> R.drawable.dao_tao
+//            "tiet_kiem" -> R.drawable.tiet_kiem
+//            "huong_thu" -> R.drawable.huong_thu
+//            else -> R.drawable.icon_filter
+//        }
+        dialogView.findViewById<ImageView>(R.id.colorCircle)?.setImageResource(R.drawable.icon_filter)
         // Cập nhật ngày giao dịch
         val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
         dialogView.findViewById<TextView>(R.id.date_transaction)?.text = dateFormat.format(item.dot)
@@ -357,6 +374,7 @@ class SpendingAdapter(private val spendingList: List<Transaction>,
         return SpendingViewHolder(view)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onBindViewHolder(holder: SpendingViewHolder, position: Int) {
         val item = spendingList[position]
 
@@ -364,14 +382,14 @@ class SpendingAdapter(private val spendingList: List<Transaction>,
         holder.itemName.text = item.note
         holder.itemCategory.text = item.transaction_type_name
         holder.itemAmount.text = item.amount.toString()
-        val imageResId = when (item.color_code) {
-            "can_thiet" -> R.drawable.can_thiet
-            "dao_tao" -> R.drawable.dao_tao
-            "tiet_kiem" -> R.drawable.tiet_kiem
-            "huong_thu" -> R.drawable.huong_thu
-            else -> R.drawable.icon_filter
-        }
-        holder.colorCircle.setImageResource(imageResId)
+//        val imageResId = when (item.color_code) {
+//            "can_thiet" -> R.drawable.can_thiet
+//            "dao_tao" -> R.drawable.dao_tao
+//            "tiet_kiem" -> R.drawable.tiet_kiem
+//            "huong_thu" -> R.drawable.huong_thu
+//            else -> R.drawable.icon_filter
+//        }
+        holder.colorCircle.setImageResource(R.drawable.icon_filter)
         holder.itemView.setOnClickListener {
             context.showDetailTransaction(item)
         }
