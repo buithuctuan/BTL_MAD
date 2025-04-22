@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/nav_trangchu_icon"
+        android:title="Trang chủ" />
+    <item
+        android:id="@+id/nav_transactions"
+        android:icon="@drawable/nav_thu_chi_icon"
+        android:title="Thu-chi" />
+    <item
+        android:id="@+id/nav_add"
+        android:icon="@drawable/ic_menu_them_giao_dich"
+        android:title="" />
+    <item
+        android:id="@+id/nav_statistics"
+        android:icon="@drawable/nav_thongke_icon"
+        android:title="Thống kê" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/nav_canhan_icon"
+        android:title="Cá nhân" />
+</menu>

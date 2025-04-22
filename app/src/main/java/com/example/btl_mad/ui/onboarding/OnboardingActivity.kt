@@ -9,8 +9,9 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager2.widget.ViewPager2
 import com.example.btl_mad.R
+
 import com.example.btl_mad.ui.login.LoginActivity
-import com.example.btl_mad.ui.main.MainActivity
+
 // OnboardingActivity: Màn hình giới thiệu với 2 trang, cho phép người dùng xem qua hoặc bỏ qua để vào MainActivity.
 class OnboardingActivity : AppCompatActivity() {
     private lateinit var viewPager: ViewPager2
@@ -63,6 +64,7 @@ class OnboardingActivity : AppCompatActivity() {
                 )
                 viewPager.currentItem = currentItem + 1
             } else {
+
                 android.util.Log.d(
                     "OnboardingActivity",
                     "Next clicked on last page, navigating to LoginActivity"
