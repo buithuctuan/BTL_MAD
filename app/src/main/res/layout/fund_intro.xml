@@ -24,6 +24,7 @@
             android:layout_height="48dp"
             android:layout_marginStart="16dp"
             android:padding="8dp"
+            android:onClick="back"
             app:srcCompat="@drawable/arrowleft"
             android:layout_gravity="bottom"
             android:layout_marginBottom="10dp"
