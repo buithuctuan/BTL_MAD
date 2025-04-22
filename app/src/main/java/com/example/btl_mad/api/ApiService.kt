@@ -3,18 +3,22 @@ package com.example.btl_mad.api
 import com.example.btl_mad.data.Fund
 import com.example.btl_mad.data.LoginUser
 import com.example.btl_mad.data.Question
-import com.example.btl_mad.data.VerifyForgotPasswordRequest
 import com.example.btl_mad.data.ResetPasswordRequest
 import com.example.btl_mad.data.UserRegisterRequest
+import com.example.btl_mad.data.VerifyForgotPasswordRequest
 import com.example.btl_mad.data.VerifyResponse
 import com.example.btl_mad.data.statistics.PredictResponse
-import com.example.btl_mad.data.statistics.StatisticPieEntry
 import com.example.btl_mad.data.statistics.StatisticLineEntry
+import com.example.btl_mad.data.statistics.StatisticPieEntry
 import com.example.btl_mad.data.statistics.StatisticTotalEntry
+import com.example.btl_mad.data.ChangePasswordRequest
+import com.example.btl_mad.data.Funds_home
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
@@ -31,9 +35,11 @@ interface ApiService {
     @POST("/api/users/verifyForgotPassword")
     suspend fun verifyForgotPassword(@Body request: VerifyForgotPasswordRequest): Response<VerifyResponse>
 
-
     @POST("api/users/resetPassword")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<Map<String, Any>>
+
+    @POST("api/users/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Map<String, Any>>
 
     @GET("/api/statistics/pie")
     suspend fun getPieData(
@@ -65,4 +71,9 @@ interface ApiService {
     @GET("/api/transaction_types/{user_id}")
     suspend fun getTransactionTypes(@Path("user_id") userId: Int): List<Fund>
 
+    @PUT("/api/users/update-profile")
+    suspend fun updateProfile(@Body data: Map<String, String>): Response<ResponseBody>
+
+    @GET("/api/funds_home")
+    suspend fun getFundsByUserId(@Query("user_id") userId: Int): List<Funds_home>
 }

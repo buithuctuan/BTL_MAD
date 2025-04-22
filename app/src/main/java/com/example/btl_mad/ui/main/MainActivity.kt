@@ -7,6 +7,8 @@ import com.example.btl_mad.R
 import com.example.btl_mad.ui.home.HomeFragment
 import com.example.btl_mad.ui.statistics.StatisticsFragment
 import com.example.btl_mad.ui.BaseFragment
+import com.example.btl_mad.ui.profile.ProfileFragment
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,7 +42,12 @@ class MainActivity : AppCompatActivity() {
             setActiveTab(navStatistics)
         }
 
-        // Mở rộng nếu bạn có TransactionFragment hoặc ProfileFragment sau này
+        navProfile.setOnClickListener {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.content_frame, ProfileFragment())
+                .commit()
+            setActiveTab(navProfile)
+        }
     }
 
     fun navigateToHome() {

@@ -2,6 +2,7 @@ package com.example.btl_mad.data.statistics
 
 import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.Fund
+import com.example.btl_mad.data.Funds_home
 
 class StatisticRepository {
     suspend fun getPieData(userId: Int, type: String, period: String): List<StatisticPieEntry> {
@@ -20,10 +21,9 @@ class StatisticRepository {
         return RetrofitClient.apiService.getPrediction(userId, type)
     }
 
-    suspend fun getTransactionTypes(userId: Int): List<Fund> {
-        return RetrofitClient.apiService.getTransactionTypes(userId)
+    suspend fun getFundsHome(userId: Int): List<Funds_home> {
+        return RetrofitClient.apiService.getFundsByUserId(userId)
     }
-
 
 }
 

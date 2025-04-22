@@ -13,6 +13,7 @@
     <color name="warning_red">#FFF0F0</color>
     <color name="safe_green">#E0F8D8</color>
     <color name="neutral_yellow">#FFFBE5</color>
-    <color name="warning_yellow">#FFFACD</color> <!-- màu mặc định ban đầu -->
+    <color name="warning_yellow">#FFFACD</color>
+    <color name="red">#F44336</color><!-- màu mặc định ban đầu -->
 
 </resources>

@@ -17,8 +17,6 @@ import com.example.btl_mad.ui.BaseFragment
 import com.example.btl_mad.ui.home.adapter.CategoryAdapter
 import com.example.btl_mad.ui.home.adapter.TransactionAdapter
 import com.example.btl_mad.ui.notification.NotificationDialogFragment
-import com.example.btl_mad.ui.home.adapter.SpendingLimitAdapter
-import com.example.btl_mad.ui.home.adapter.SpendingLimitItem
 import com.example.btl_mad.data.Fund
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
@@ -67,22 +65,22 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-        lifecycleScope.launch {
-            try {
-                val result: List<Fund> = statisticRepo.getTransactionTypes(userId)
-                val spendingSummary = result.map {
-                    SpendingLimitItem(
-                        category = it.name,
-                        limit = it.spending_limit,
-                        spent = it.total_expenses
-                    )
-                }
-                limitRecycler.layoutManager = LinearLayoutManager(requireContext())
-                limitRecycler.adapter = SpendingLimitAdapter(spendingSummary)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+//        lifecycleScope.launch {
+//            try {
+//                val result: List<Fund> = statisticRepo.getTransactionTypes(userId)
+//                val spendingSummary = result.map {
+//                    SpendingLimitItem(
+//                        category = it.name,
+//                        limit = it.spending_limit,
+//                        spent = it.total_expenses
+//                    )
+//                }
+//                limitRecycler.layoutManager = LinearLayoutManager(requireContext())
+//                limitRecycler.adapter = SpendingLimitAdapter(spendingSummary)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//        }
 
         val btnNotification = view.findViewById<ImageView>(R.id.btnNotification)
         btnNotification.setOnClickListener {
