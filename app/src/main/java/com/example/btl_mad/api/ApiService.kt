@@ -29,7 +29,7 @@ interface ApiService {
 
     // GET transaction types by Path (trả về Fund)
     @GET("/api/transaction_types/{user_id}")
-    fun getTransactionTypesByPath(
+    fun getTransactionTypes(
         @Path("user_id") userId: Int
     ): Call<List<Fund>>
 

@@ -4,20 +4,60 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="@color/white">
+    android:background="@drawable/bg_popup_rounded">
 
+    <!-- Tiêu đề -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Chọn phân loại"
-        android:textSize="18sp"
+        android:text="Phân loại"
         android:textStyle="bold"
-        android:paddingBottom="8dp" />
+        android:textSize="20sp"
+        android:textColor="@color/black" />
 
-    <ListView
-        android:id="@+id/categoryListView"
+    <!-- Dòng tạo phân loại mới -->
+    <LinearLayout
+        android:id="@+id/addCategoryLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:divider="@android:color/darker_gray"
-        android:dividerHeight="1dp" />
+        android:orientation="horizontal"
+        android:paddingVertical="12dp"
+        android:gravity="center_vertical"
+        android:layout_marginTop="12dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_them_danh_muc" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tạo phân loại mới"
+            android:textSize="16sp"
+            android:paddingStart="8dp"
+            android:textColor="@color/black" />
+    </LinearLayout>
+
+    <!-- Danh sách phân loại -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Danh sách phân loại"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:layout_marginTop="12dp"
+        android:textColor="@color/black" />
+
+
+    <GridView
+        android:id="@+id/categoryGridView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:horizontalSpacing="8dp"
+        android:verticalSpacing="8dp"
+        android:numColumns="3"
+        android:stretchMode="columnWidth"
+        android:layout_marginTop="8dp" />
+
 </LinearLayout>

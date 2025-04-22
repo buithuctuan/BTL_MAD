@@ -12,7 +12,7 @@ import android.widget.EditText
 import android.widget.GridView
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.ListView
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +24,7 @@ import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.ExpenseRequest
 import com.example.btl_mad.data.TransactionType
 import com.example.btl_mad.data.User
+import com.example.btl_mad.ui.fund.AddFundActivity
 import com.example.btl_mad.ui.main.MainActivity
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
@@ -123,6 +124,11 @@ class AddTransactionIncomeActivity : AppCompatActivity() {
         }
 
         // Lấy danh sách transaction_type khi khởi động
+//        fetchTransactionTypes()
+    }
+
+    override fun onResume() {
+        super.onResume()
         fetchTransactionTypes()
     }
 
@@ -132,7 +138,7 @@ class AddTransactionIncomeActivity : AppCompatActivity() {
         val userJson = sharedPreferences.getString("user", null)
         val user = Gson().fromJson(userJson, User::class.java)
 
-        RetrofitClient.apiService.getTransactionTypes(user.id).enqueue(object : Callback<List<TransactionType>> {
+        RetrofitClient.apiService.getTransactionTypesByQuery(user.id).enqueue(object : Callback<List<TransactionType>> {
             override fun onResponse(call: Call<List<TransactionType>>, response: Response<List<TransactionType>>) {
                 if (response.isSuccessful) {
                     transactionTypes = response.body() ?: emptyList()
@@ -346,22 +352,33 @@ class AddTransactionIncomeActivity : AppCompatActivity() {
             .setCancelable(true)
             .create()
 
-        val listView = dialogView.findViewById<ListView>(R.id.categoryListView)
-        val adapter = CategoryAdapter(this, transactionTypes)
-        listView.adapter = adapter
+        val gridView = dialogView.findViewById<GridView>(R.id.categoryGridView)
 
-        listView.setOnItemClickListener { _, _, position, _ ->
+        val adapter = CategoryAdapter(this, transactionTypes)
+        gridView.adapter = adapter
+
+        gridView.setOnItemClickListener { _, _, position, _ ->
             val selectedCategory = transactionTypes[position]
             categoryText.text = selectedCategory.name
             dialog.dismiss()
         }
 
+        val addCategoryLayout = dialogView.findViewById<LinearLayout>(R.id.addCategoryLayout)
+        addCategoryLayout.setOnClickListener {
+            dialog.dismiss()
+            // Gọi sang màn hình tạo danh mục mới:
+            startActivity(Intent(this, AddFundActivity::class.java))
+        }
+
         dialog.show()
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.window?.setLayout(
-            (resources.displayMetrics.widthPixels * 0.8).toInt(),
-            android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-        )
+        dialog.window?.let { window ->
+            val params = window.attributes
+            params.gravity = Gravity.BOTTOM
+            params.width = android.view.WindowManager.LayoutParams.WRAP_CONTENT
+            window.attributes = params
+            window.setBackgroundDrawableResource(android.R.color.transparent)
+        }
     }
 
     private fun showSuccessDialog() {
