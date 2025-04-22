@@ -14,12 +14,11 @@ class CategoryAdapter(private val list: List<Category>) :
     class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvName: TextView = itemView.findViewById(R.id.tvCategoryName)
         val tvAmount: TextView = itemView.findViewById(R.id.tvCategoryAmount)
-        val tvPercent: TextView = itemView.findViewById(R.id.tvCategoryPercent)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_category, parent, false)
+            .inflate(R.layout.item_category_home, parent, false)
         return CategoryViewHolder(view)
     }
 
@@ -27,7 +26,6 @@ class CategoryAdapter(private val list: List<Category>) :
         val category = list[position]
         holder.tvName.text = category.name
         holder.tvAmount.text = "${category.amount} VND"
-        holder.tvPercent.text = "${category.percentage}%"
     }
 
     override fun getItemCount(): Int = list.size

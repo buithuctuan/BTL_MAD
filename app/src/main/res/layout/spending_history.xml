@@ -4,116 +4,79 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/blue">
+    android:background="#42A6ED">
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="90dp"
-        android:orientation="horizontal"
-        android:elevation="50dp"
-        android:gravity="center_vertical"
-        tools:ignore="MissingConstraints">
+    <TextView
+        android:id="@+id/titleThuChi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="68dp"
+        android:text="Thu - chi"
+        android:textColor="@color/white"
+        android:textSize="25sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.468"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Nút mũi tên sát lề trái -->
-        <ImageButton
-            android:id="@+id/imageButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="16dp"
-            android:padding="8dp"
-            app:srcCompat="@drawable/arrowleft"
-            android:layout_gravity="bottom"
-            android:onClick="back"
-            android:layout_marginBottom="10dp"
-            android:contentDescription="Nút quay lại"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
-
-        <!-- Khoảng trống để căn giữa TextView -->
-        <View
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
-
-        <!-- Tiêu đề nằm giữa -->
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hũ chi tiêu"
-            android:layout_marginBottom="10dp"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:layout_gravity="bottom"
-            android:textStyle="bold"/>
-
-        <!-- Khoảng trống phải (bằng mũi tên + margin) -->
-        <View
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
-
-        <!-- Ô trống này để giữ cân bằng, nhưng kích thước nó sẽ nhỏ hơn nếu mũi tên quá to -->
-        <ImageButton
-            android:id="@+id/update"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginStart="16dp"
-            android:padding="8dp"
-            app:srcCompat="@drawable/update_icon"
-            android:layout_gravity="bottom"
-            android:onClick="openEditDialog"
-            android:layout_marginBottom="10dp"
-            android:contentDescription="Nút sửa"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
-
-
-    </LinearLayout>
-
+    <ImageButton
+        android:id="@+id/buttonBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="68dp"
+        android:onClick="goBack"
+        android:background="@android:color/transparent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/arrow_left" />
 
     <TextView
         android:id="@+id/filterCalendar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="164dp"
-        android:layout_marginTop="88dp"
+        android:layout_marginTop="112dp"
         android:text="Tháng này"
         android:textColor="@color/white"
-        android:textSize="18sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:onClick="showFilterDateDialog"/>
 
     <ImageButton
         android:id="@+id/imageButton4"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="116dp"
-        android:layout_marginTop="76dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="124dp"
+        android:layout_marginTop="108dp"
         android:background="@android:color/transparent"
-        android:contentDescription="Calender button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/calender" />
+        app:srcCompat="@drawable/calendar"
+        android:onClick="showFilterDateDialog"/>
 
     <ImageButton
         android:id="@+id/showFilterCalendar2"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginStart="244dp"
-        android:layout_marginTop="76dp"
+        android:layout_marginTop="112dp"
         android:background="@android:color/transparent"
-        android:contentDescription="Arrow down"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/arrow_down_white" />
+        app:srcCompat="@drawable/arrow_down"
+        android:onClick="showFilterDateDialog"/>
 
     <LinearLayout
         android:id="@+id/totalIncome"
+        android:onClick="changeToIncomeView"
         android:layout_width="185dp"
-        android:background="@drawable/bg_total_spending"
         android:layout_height="86dp"
         android:layout_marginStart="208dp"
-        android:layout_marginTop="124dp"
+        android:layout_marginTop="152dp"
+        android:background="@drawable/rounded_background"
         android:gravity="start|top"
         android:orientation="vertical"
         app:layout_constraintStart_toStartOf="parent"
@@ -141,13 +104,14 @@
 
     <LinearLayout
         android:id="@+id/totalSpending"
+        android:onClick="changeToSpendingView"
         android:layout_width="185dp"
         android:layout_height="86dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="124dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="152dp"
+        android:background="@drawable/rounded_background"
         android:gravity="start|top"
         android:orientation="vertical"
-        android:background="@drawable/bg_total_spending"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
@@ -175,10 +139,10 @@
         android:id="@+id/searchAndDisplayField"
         android:layout_width="410dp"
         android:layout_height="670dp"
-        android:layout_marginTop="220dp"
+        android:layout_marginTop="264dp"
+        android:background="@drawable/rounded_search_and_dispalay_field"
         android:gravity="start|top"
         android:orientation="vertical"
-        android:background="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -191,7 +155,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginTop="30dp"
             android:layout_marginRight="20dp"
-            android:background="@drawable/border_gray"
+            android:background="@drawable/search_field"
             android:gravity="center_vertical"
             android:orientation="horizontal"
             android:padding="8dp">
@@ -206,8 +170,8 @@
 
             <EditText
                 android:id="@+id/searchTransaction"
-                android:layout_width="48dp"
-                android:layout_height="35dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@android:color/transparent"
                 android:hint="Tìm giao dịch"
@@ -220,18 +184,17 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"
                 android:background="@android:color/transparent"
-                android:src="@drawable/filter" />
+                android:src="@drawable/icon_filter"
+                android:onClick="showFilterSpendingDialog"/>
 
         </LinearLayout>
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/spendingList"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:backgroundTint="@color/white"
             android:padding="8dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
     </LinearLayout>
 
 

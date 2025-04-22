@@ -15,8 +15,15 @@ import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.LoginUser
 import com.example.btl_mad.data.User
 import com.example.btl_mad.ui.forgotpassword.ForgotPasswordActivity
+
+
 import com.example.btl_mad.ui.main.MainActivity
+import com.example.btl_mad.ui.home.HomeFragment
+import com.example.btl_mad.ui.transaction.AddTransactionExpenseActivity
+
 import com.example.btl_mad.ui.signup.SignUpActivity
+import com.example.btl_mad.ui.transaction.AddTransactionIncomeActivity
+import com.example.btl_mad.ui.transactionhistory.SpendingHistory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -87,8 +94,11 @@ class LoginActivity : AppCompatActivity() {
                             .putString("user", Gson().toJson(user))
                             .apply()
 
+
                         // Chuyển đến MainActivity
+
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
+
                         intent.putExtra("username", username)
                         startActivity(intent)
                         finish()

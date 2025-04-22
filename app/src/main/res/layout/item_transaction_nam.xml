@@ -1,0 +1,53 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="horizontal"
+android:padding="10dp"
+android:background="@android:color/transparent">
+
+
+    <ImageView
+        android:id="@+id/colorCircle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginEnd="10dp"
+        android:src="@drawable/huong_thu" />
+
+
+    <LinearLayout
+    android:orientation="vertical"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1">
+
+
+    <TextView
+        android:id="@+id/itemName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tên mục"
+        android:textSize="16sp"
+        android:textColor="#333333" />
+
+
+    <TextView
+        android:id="@+id/itemCategory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Loại mục"
+        android:textSize="14sp"
+        android:textColor="#888888" />
+</LinearLayout>
+
+
+<TextView
+    android:id="@+id/itemAmount"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="250.000 đ"
+    android:textSize="16sp"
+    android:textColor="#333333"
+    android:layout_gravity="center_vertical" />
+</LinearLayout>

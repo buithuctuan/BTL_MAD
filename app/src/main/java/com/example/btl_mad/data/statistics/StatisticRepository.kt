@@ -3,6 +3,9 @@ package com.example.btl_mad.data.statistics
 import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.Fund
 import com.example.btl_mad.data.Funds_home
+import com.example.btl_mad.data.Transaction_home
+import retrofit2.Call
+import retrofit2.http.Query
 
 class StatisticRepository {
     suspend fun getPieData(userId: Int, type: String, period: String): List<StatisticPieEntry> {
@@ -21,8 +24,15 @@ class StatisticRepository {
         return RetrofitClient.apiService.getPrediction(userId, type)
     }
 
-    suspend fun getFundsHome(userId: Int): List<Funds_home> {
+    suspend fun getFunds(userId: Int): List<Funds_home> {
         return RetrofitClient.apiService.getFundsByUserId(userId)
+    }
+    suspend fun getRecentTransactions(userId: Int, type: String): List<Transaction_home> {
+        return RetrofitClient.apiService.getRecentTransactions(
+            userId = userId,
+            type = type,
+            limit = 5
+        )
     }
 
 }

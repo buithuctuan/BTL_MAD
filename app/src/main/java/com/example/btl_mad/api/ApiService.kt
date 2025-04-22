@@ -3,11 +3,13 @@ package com.example.btl_mad.api
 import com.example.btl_mad.data.Fund
 import com.example.btl_mad.data.LoginUser
 import com.example.btl_mad.data.Question
+import com.example.btl_mad.data.VerifyForgotPasswordRequest
 import com.example.btl_mad.data.ResetPasswordRequest
 import com.example.btl_mad.data.UserRegisterRequest
 import com.example.btl_mad.data.VerifyForgotPasswordRequest
 import com.example.btl_mad.data.VerifyResponse
 import com.example.btl_mad.data.statistics.PredictResponse
+import com.example.btl_mad.data.statistics.StatisticPieEntry
 import com.example.btl_mad.data.statistics.StatisticLineEntry
 import com.example.btl_mad.data.statistics.StatisticPieEntry
 import com.example.btl_mad.data.statistics.StatisticTotalEntry
@@ -22,6 +24,7 @@ import retrofit2.http.PUT
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+
 interface ApiService {
     @POST("api/users/register")
     suspend fun registerUser(@Body user: UserRegisterRequest): Response<Map<String, String>>
@@ -35,11 +38,89 @@ interface ApiService {
     @POST("/api/users/verifyForgotPassword")
     suspend fun verifyForgotPassword(@Body request: VerifyForgotPasswordRequest): Response<VerifyResponse>
 
+
     @POST("api/users/resetPassword")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<Map<String, Any>>
 
     @POST("api/users/change-password")
     suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Map<String, Any>>
+
+
+    // Get notifications
+    @GET("/api/notifications/{user_id}")
+    fun getNotifications(
+        @Path("user_id") userId: Int
+    ): Call<List<Notification>>
+
+    @POST("/api/notifications")
+    fun addNotification(
+        @Query("user_id") name: Int,
+        @Query("title") title: String,
+        @Query("content") content: String
+    ): Call<FundResponse>
+
+    // GET transaction types by Path (trả về Fund)
+    @GET("/api/transaction_types/{user_id}")
+    fun getTransactionTypes(
+        @Path("user_id") userId: Int
+    ): Call<List<Fund>>
+
+    // GET transaction types by Query (trả về TransactionType)
+    @GET("api/transaction_types")
+    fun getTransactionTypesByQuery(
+        @Query("user_id") userId: Int
+    ): Call<List<TransactionType>>
+
+    // Giao dịch quỹ
+    @GET("/api/transactions-fund")
+    fun getTransactionsFund(
+        @Query("fund_id") fundId: Int,
+        @Query("user_id") userId: Int,
+        @Query("month") month: Int,
+        @Query("year") year: Int,
+        @Query("type") type: String,
+        @Query("search") search: String?
+    ): Call<List<TransFund>>
+
+    @GET("/api/fund-info")
+    fun getFundInfo(
+        @Query("fund_id") fundId: Int,
+        @Query("user_id") userId: Int,
+        @Query("month") month: Int,
+        @Query("year") year: Int
+    ): Call<List<FundInfo>>
+
+    @GET("/api/fund-detail")
+    fun getFundDetail(
+        @Query("fund_id") fundId: Int
+    ): Call<List<FundDetail>>
+
+    @POST("/api/transaction-type")
+    fun addFund(
+        @Query("name") name: String,
+        @Query("user_id") userId: Int,
+        @Query("icon") icon: String,
+        @Query("budget") budget: Float
+    ): Call<FundResponse>
+
+    @PUT("/api/transaction-type")
+    fun updateTransactionType(
+        @Query("id") fundId: Int,
+        @Query("name") name: String,
+        @Query("user_id") userId: Int,
+        @Query("icon") icon: String,
+        @Query("budget") budget: Float
+    ): Call<FundResponse>
+
+    @DELETE("/api/transaction-type/{id}")
+    fun deleteTransactionType(
+        @Path("id") Id: Int
+    ): Call<FundResponse>
+
+    // Thêm chi tiêu
+    @POST("api/expense")
+    fun saveExpense(@Body request: ExpenseRequest): Call<ExpenseResponse>
+
 
     @GET("/api/statistics/pie")
     suspend fun getPieData(
@@ -68,12 +149,45 @@ interface ApiService {
         @Query("type") type: String
     ): PredictResponse
 
-    @GET("/api/transaction_types/{user_id}")
-    suspend fun getTransactionTypes(@Path("user_id") userId: Int): List<Fund>
+    @GET("/api/funds_home")
+    suspend fun getFundsByUserId(@Query("user_id") userId: Int): List<Funds_home>
+
+    @GET("/api/statistics/by-category")
+    suspend fun getSpendingByCategory(@Query("user_id") userId: Int): List<CategorySpending>
+
+    @GET("/api/transactions/recent")
+    suspend fun getRecentTransactions(
+        @Query("user_id") userId: Int,
+        @Query("type") type: String,
+        @Query("limit") limit: Int = 5
+    ): List<Transaction_home>
+
+    @GET("/api/spending_summary_home")
+    suspend fun getSpendingSummary(@Query("user_id") userId: Int): SpendingSummaryResponse
+
+    @POST("api/getListTransactions")
+    fun getListTransactions(
+        @Body request: TransactionRequest): Call<List<Transaction>>
+    // lấy tổng số tiền chi và thu trong một khoảng thời gian
+    @GET("/api/getTotalSpendingAndIncome/{user_id}")
+    fun getTotalSpendingAndIncome(
+        @Path("user_id") userId: Int,
+        @Query("filter_date") filterDate: String
+    ): Call<TotalSpendingAndIncomeResponse>
+    // xoa giao dich
+    @DELETE("/api/deleteTransaction/{id}")
+    fun deleteTransaction(
+        @Path("id") Id: Int
+    ): Call<FundResponse>
+
+    // sua giao dich
+    @POST("/api/modifyTransaction")
+    fun updateTransaction(
+        @Body request: Transaction
+    ): Call<FundResponse>
 
     @PUT("/api/users/update-profile")
     suspend fun updateProfile(@Body data: Map<String, String>): Response<ResponseBody>
 
-    @GET("/api/funds_home")
-    suspend fun getFundsByUserId(@Query("user_id") userId: Int): List<Funds_home>
 }
+
