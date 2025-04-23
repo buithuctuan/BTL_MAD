@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import android.transition.AutoTransition
 import android.transition.TransitionManager
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -16,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.btl_mad.R
 import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.Fund
+import com.example.btl_mad.ui.main.MainActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,6 +26,8 @@ import com.example.btl_mad.ui.utils.SharedPrefManager
 class ListFund : AppCompatActivity() {
     private lateinit var textToggleProgress: TextView
     private var isVisible = false
+    private lateinit var navHome: LinearLayout
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,12 +46,18 @@ class ListFund : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewFunds)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Giả sử user_id là 5
-//        val userId = 5
-
         // Gọi API để lấy danh sách các quỹ
         getFundsFromAPI(userId)
 
+        navHome = findViewById(R.id.nav_home)
+        navHome.setOnClickListener {
+            navigateToHome()
+        }
+
+    }
+    fun navigateToHome() {
+        val intent = Intent(this@ListFund, MainActivity::class.java)
+        startActivity(intent)
     }
 
     private fun toggleProgressLayouts() {
