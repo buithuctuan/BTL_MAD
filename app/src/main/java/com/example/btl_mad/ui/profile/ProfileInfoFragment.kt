@@ -65,7 +65,7 @@ class ProfileInfoFragment : BaseFragment() {
                 message = "Bạn có chắc chắn muốn cập nhật thông tin cá nhân?",
                 onConfirm = {
                     val updatedUser = mapOf(
-                        "user_id" to SharedPrefManager.getUserId(requireContext()).toString(),
+                        "id" to SharedPrefManager.getUserId(requireContext()).toString(),
                         "full_name" to fullName.text.toString(),
                         "mail" to email.text.toString(),
                         "phoneNumber" to phone.text.toString(),
@@ -87,9 +87,12 @@ class ProfileInfoFragment : BaseFragment() {
                                     showCreateNew = false
                                 )
                             } else {
+                                val errorBody = response.errorBody()?.string()
+                                android.util.Log.e("PROFILE_UPDATE", "Lỗi cập nhật: $errorBody")
                                 DialogUtils.showErrorDialog(requireContext(), "Cập nhật thất bại!")
                             }
                         } catch (e: Exception) {
+                            android.util.Log.e("PROFILE_UPDATE", "Exception: ${e.message}", e)
                             DialogUtils.showErrorDialog(requireContext(), "Lỗi kết nối server")
                         }
                     }

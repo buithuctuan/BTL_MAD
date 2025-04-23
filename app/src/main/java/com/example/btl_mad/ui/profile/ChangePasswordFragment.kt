@@ -49,9 +49,18 @@ class ChangePasswordFragment : BaseFragment() {
                         new_password = newPassword
                     )
 
+                    // 🧠 DEBUG: In request ra logcat
+                    android.util.Log.d("CHANGE_PASSWORD", "Request: $request")
+
                     lifecycleScope.launch {
                         try {
                             val response = RetrofitClient.apiService.changePassword(request)
+
+                            // 🧠 DEBUG: In raw response
+                            android.util.Log.d("CHANGE_PASSWORD", "Response raw: ${response.raw()}")
+                            android.util.Log.d("CHANGE_PASSWORD", "Response body: ${response.body()}")
+                            android.util.Log.d("CHANGE_PASSWORD", "Response error: ${response.errorBody()?.string()}")
+
                             if (response.isSuccessful && response.body()?.get("status") == true) {
                                 DialogUtils.showSuccessDialog(
                                     context = requireContext(),
@@ -67,11 +76,13 @@ class ChangePasswordFragment : BaseFragment() {
                                 DialogUtils.showErrorDialog(requireContext(), errorMsg.toString())
                             }
                         } catch (e: Exception) {
+                            e.printStackTrace() // 🧠 In ra lỗi chi tiết
                             DialogUtils.showErrorDialog(requireContext(), "Lỗi kết nối đến máy chủ.")
                         }
                     }
                 }
             )
         }
+
     }
 }
