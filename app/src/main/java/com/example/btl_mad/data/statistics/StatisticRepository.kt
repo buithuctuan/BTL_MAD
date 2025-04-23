@@ -24,7 +24,6 @@ class StatisticRepository {
         return RetrofitClient.apiService.getPrediction(userId, type)
     }
 
-
     suspend fun getFunds(userId: Int): List<Funds_home> {
         return RetrofitClient.apiService.getFundsByUserId(userId)
     }

@@ -22,13 +22,11 @@ import com.example.btl_mad.ui.home.adapter.CategoryAdapter
 import com.example.btl_mad.ui.notification.NotificationDialogFragment
 import com.example.btl_mad.data.Fund
 import com.example.btl_mad.ui.fund.AddFundActivity
-import com.example.btl_mad.ui.fund.FundIntro
 import com.example.btl_mad.ui.fund.ListFund
 import com.example.btl_mad.ui.home.adapter.CategorySpendingAdapter
 import com.example.btl_mad.ui.home.adapter.FundsLimitAdapter
 import com.example.btl_mad.ui.home.adapter.RecentTransactionAdapter
 import com.example.btl_mad.ui.main.MainActivity
-import com.example.btl_mad.ui.notification.ListNotification
 import com.example.btl_mad.utils.SharedPrefManager
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
@@ -115,8 +113,12 @@ class HomeFragment : BaseFragment() {
 
         val btnNotification = view.findViewById<ImageView>(R.id.btnNotification)
         btnNotification.setOnClickListener {
-            val intent = Intent(requireActivity(), ListNotification::class.java)
-            startActivity(intent)
+            val demoNotifications = listOf(
+                Notification(1, 1, "Ưu đãi mới", "Bạn nhận được voucher 50K", "19:00 19/04/2025"),
+                Notification(2, 1, "Cảnh báo", "Chi tiêu vượt hạn mức tháng 4", "17:35 18/04/2025")
+            )
+            val popup = NotificationDialogFragment(demoNotifications)
+            popup.show(parentFragmentManager, "notification_popup")
         }
 
 //Hiển thị Chi theo phân loại
@@ -138,7 +140,7 @@ class HomeFragment : BaseFragment() {
         }
 
         view.findViewById<TextView>(R.id.tvViewAllCategories).setOnClickListener {
-            val intent = Intent(requireContext(), FundIntro::class.java)
+            val intent = Intent(requireContext(), MainActivity::class.java)
             startActivity(intent)
         }
 
