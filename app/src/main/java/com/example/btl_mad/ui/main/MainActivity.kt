@@ -15,6 +15,7 @@ import com.example.btl_mad.R
 import com.example.btl_mad.ui.home.HomeFragment
 import com.example.btl_mad.ui.statistics.StatisticsFragment
 import com.example.btl_mad.ui.BaseFragment
+import com.example.btl_mad.ui.profile.ProfileFragment
 import com.example.btl_mad.ui.transaction.AddTransactionExpenseActivity
 import com.example.btl_mad.ui.transaction.AddTransactionIncomeActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog

@@ -133,7 +133,7 @@ class StatisticsFragment : BaseFragment() {
                 val totalData = statisticRepo.getTotal(userId, selectedMode, selectedPeriod)
                 Log.d("STATISTICS", "Summary response: $totalData")
 
-                val prediction = statisticRepo.getPredictedSpending(userId, selectedMode)
+                val prediction = statisticRepo.getPredictedSpending(userId, "chi")
                 Log.d("STATISTICS", "Prediction: $prediction")
 
                 val formatter = DecimalFormat("#,###")
@@ -174,7 +174,7 @@ class StatisticsFragment : BaseFragment() {
                 updateLineChart(lineData)
                 updateTotalUI(totalData)
 
-                val funds = statisticRepo.getFundsHome(userId)
+                val funds = statisticRepo.getFunds(userId)
                 updateLimitCardsFromFunds(funds)
             } catch (e: Exception) {
                 e.printStackTrace()

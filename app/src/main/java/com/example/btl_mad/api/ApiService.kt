@@ -1,23 +1,37 @@
 package com.example.btl_mad.api
 
+import com.example.btl_mad.data.CategorySpending
 import com.example.btl_mad.data.Fund
 import com.example.btl_mad.data.LoginUser
 import com.example.btl_mad.data.Question
 import com.example.btl_mad.data.VerifyForgotPasswordRequest
 import com.example.btl_mad.data.ResetPasswordRequest
 import com.example.btl_mad.data.UserRegisterRequest
-import com.example.btl_mad.data.VerifyForgotPasswordRequest
 import com.example.btl_mad.data.VerifyResponse
 import com.example.btl_mad.data.statistics.PredictResponse
 import com.example.btl_mad.data.statistics.StatisticPieEntry
 import com.example.btl_mad.data.statistics.StatisticLineEntry
-import com.example.btl_mad.data.statistics.StatisticPieEntry
 import com.example.btl_mad.data.statistics.StatisticTotalEntry
 import com.example.btl_mad.data.ChangePasswordRequest
+import com.example.btl_mad.data.ExpenseRequest
+import com.example.btl_mad.data.ExpenseResponse
+import com.example.btl_mad.data.FundResponse
 import com.example.btl_mad.data.Funds_home
+import com.example.btl_mad.data.SpendingSummaryResponse
+import com.example.btl_mad.data.TotalSpendingAndIncomeResponse
+import com.example.btl_mad.data.Transaction
+import com.example.btl_mad.data.TransactionRequest
+import com.example.btl_mad.data.Transaction_home
+import com.example.btl_mad.data.Notification
+import com.example.btl_mad.data.TransactionType
+import com.example.btl_mad.data.TransFund
+import com.example.btl_mad.data.FundInfo
+import com.example.btl_mad.data.FundDetail
 import okhttp3.ResponseBody
+import retrofit2.Call
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -167,7 +181,8 @@ interface ApiService {
 
     @POST("api/getListTransactions")
     fun getListTransactions(
-        @Body request: TransactionRequest): Call<List<Transaction>>
+        @Body request: TransactionRequest
+    ): Call<List<Transaction>>
     // lấy tổng số tiền chi và thu trong một khoảng thời gian
     @GET("/api/getTotalSpendingAndIncome/{user_id}")
     fun getTotalSpendingAndIncome(
