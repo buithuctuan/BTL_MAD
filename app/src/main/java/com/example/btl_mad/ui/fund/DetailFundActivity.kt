@@ -1,5 +1,6 @@
 package com.example.btl_mad.ui.fund
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -21,6 +23,7 @@ import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.FundDetail
 import com.example.btl_mad.data.FundInfo
 import com.example.btl_mad.data.TransFund
+import com.example.btl_mad.ui.main.MainActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,6 +38,7 @@ class DetailFundActivity : AppCompatActivity() {
     private lateinit var monthList: ArrayList<String>
     private lateinit var adapter: ArrayAdapter<String>
     private lateinit var searchEditText: EditText
+    private lateinit var navHome: LinearLayout
     private var month: Int = 0
     private var year: Int = 0
     private var fundId: Int = -1
@@ -85,6 +89,16 @@ class DetailFundActivity : AppCompatActivity() {
             getTransactions(fundId, userId, month, year, type, search)
             getFundInfo(fundId, userId, month, year)
         }
+
+        navHome = findViewById(R.id.nav_home)
+        navHome.setOnClickListener {
+            navigateToHome()
+        }
+    }
+
+    fun navigateToHome() {
+        val intent = Intent(this@DetailFundActivity, MainActivity::class.java)
+        startActivity(intent)
     }
 
     private fun handleMonthSelection(selectedMonth: String) {
