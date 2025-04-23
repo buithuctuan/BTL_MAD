@@ -61,12 +61,12 @@ interface ApiService {
 
 
     // Get notifications
-    @GET("/api/notifications/{user_id}")
+    @GET("/api/notifications/")
     fun getNotifications(
-        @Path("user_id") userId: Int
+        @Query("user_id") userId: Int
     ): Call<List<Notification>>
 
-    @POST("/api/notifications")
+    @POST("/api/notifications/")
     fun addNotification(
         @Query("user_id") name: Int,
         @Query("title") title: String,
@@ -74,9 +74,9 @@ interface ApiService {
     ): Call<FundResponse>
 
     // GET transaction types by Path (trả về Fund)
-    @GET("/api/transaction_types/{user_id}")
+    @GET("/api/transaction-type/get-list-transaction-type")
     fun getTransactionTypes(
-        @Path("user_id") userId: Int
+        @Query("user_id") userId: Int
     ): Call<List<Fund>>
 
     // GET transaction types by Query (trả về TransactionType)
@@ -86,30 +86,23 @@ interface ApiService {
     ): Call<List<TransactionType>>
 
     // Giao dịch quỹ
-    @GET("/api/transactions-fund")
+    @GET("/api/transaction-type/get-list-transaction")
     fun getTransactionsFund(
         @Query("fund_id") fundId: Int,
-        @Query("user_id") userId: Int,
         @Query("month") month: Int,
         @Query("year") year: Int,
         @Query("type") type: String,
         @Query("search") search: String?
     ): Call<List<TransFund>>
 
-    @GET("/api/fund-info")
+    @GET("/api/transaction-type/get-detail-transaction-type")
     fun getFundInfo(
         @Query("fund_id") fundId: Int,
-        @Query("user_id") userId: Int,
         @Query("month") month: Int,
         @Query("year") year: Int
     ): Call<List<FundInfo>>
 
-    @GET("/api/fund-detail")
-    fun getFundDetail(
-        @Query("fund_id") fundId: Int
-    ): Call<List<FundDetail>>
-
-    @POST("/api/transaction-type")
+    @POST("/api/transaction-type/create")
     fun addFund(
         @Query("name") name: String,
         @Query("user_id") userId: Int,
@@ -117,7 +110,7 @@ interface ApiService {
         @Query("budget") budget: Float
     ): Call<FundResponse>
 
-    @PUT("/api/transaction-type")
+    @PUT("/api/transaction-type/update")
     fun updateTransactionType(
         @Query("id") fundId: Int,
         @Query("name") name: String,
@@ -126,9 +119,9 @@ interface ApiService {
         @Query("budget") budget: Float
     ): Call<FundResponse>
 
-    @DELETE("/api/transaction-type/{id}")
+    @DELETE("/api/transaction-type/delete")
     fun deleteTransactionType(
-        @Path("id") Id: Int
+        @Query("id") Id: Int
     ): Call<FundResponse>
 
     // Thêm chi tiêu

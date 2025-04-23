@@ -232,7 +232,7 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
         val calendar = Calendar.getInstance()
         val month = calendar.get(Calendar.MONTH) + 1
         val year = calendar.get(Calendar.YEAR)
-        RetrofitClient.apiService.getFundInfo(transaction_type_id, user_id, month, year).enqueue(object : Callback<List<FundInfo>> {
+        RetrofitClient.apiService.getFundInfo(transaction_type_id, month, year).enqueue(object : Callback<List<FundInfo>> {
             override fun onResponse(call: Call<List<FundInfo>>, response: Response<List<FundInfo>>) {
                 if (response.isSuccessful && response.body() != null) {
                     val fundInfoList = response.body() // Lấy danh sách các FundInfo
