@@ -263,6 +263,24 @@
             app:alignItems="center"
             app:flexWrap="wrap"
             app:justifyContent="flex_start" />
+
+        <!-- 📦 Giới hạn chi tiêu theo từng mục -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Giới hạn chi tiêu theo mục"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:id="@+id/limitContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:dividerPadding="4dp"
+            android:padding="4dp" />
         <!-- Danh sách thống kê -->
         <TextView
             android:layout_width="match_parent"

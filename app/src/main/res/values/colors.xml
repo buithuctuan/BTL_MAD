@@ -14,6 +14,7 @@
     <color name="safe_green">#E0F8D8</color>
     <color name="neutral_yellow">#FFFBE5</color>
     <color name="warning_yellow">#FFFACD</color>
+    <color name="red">#F44336</color><!-- màu mặc định ban đầu -->
     <color name="green">#99FF66</color>
     <color name="orange">#FF9933</color>
 

@@ -49,7 +49,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="Icon tên tài khoản"
-                android:src="@android:drawable/ic_menu_manage" />
+                android:src="@drawable/ic_user" />
 
             <EditText
                 android:id="@+id/etUsername"
@@ -85,7 +85,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="Icon họ tên"
-                android:src="@android:drawable/ic_menu_manage" />
+                android:src="@drawable/ic_user_list" />
 
             <EditText
                 android:id="@+id/etFullName"
@@ -121,7 +121,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="Icon ngày sinh"
-                android:src="@android:drawable/ic_menu_today" />
+                android:src="@drawable/ic_lich_tk" />
 
             <EditText
                 android:id="@+id/etDob"

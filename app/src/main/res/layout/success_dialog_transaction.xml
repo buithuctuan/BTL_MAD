@@ -9,6 +9,7 @@
 
     <!-- Icon Success from HEAD branch -->
     <ImageView
+        android:id="@+id/iconImage"
         android:layout_width="wrap_content"
         android:layout_height="70dp"
         android:layout_gravity="center"
@@ -16,6 +17,7 @@
 
     <!-- Text from HEAD branch -->
     <TextView
+        android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Giao dịch đã được lưu\n thành công"

@@ -7,13 +7,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.PopupMenu
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.btl_mad.R
+import com.example.btl_mad.data.Funds_home
+import com.example.btl_mad.data.statistics.SpendingLimitEntry
 import com.example.btl_mad.data.statistics.StatisticLineEntry
 import com.example.btl_mad.data.statistics.StatisticPieEntry
 import com.example.btl_mad.data.statistics.StatisticRepository
@@ -129,7 +133,7 @@ class StatisticsFragment : BaseFragment() {
                 val totalData = statisticRepo.getTotal(userId, selectedMode, selectedPeriod)
                 Log.d("STATISTICS", "Summary response: $totalData")
 
-                val prediction = statisticRepo.getPredictedSpending(userId, selectedMode)
+                val prediction = statisticRepo.getPredictedSpending(userId, "chi")
                 Log.d("STATISTICS", "Prediction: $prediction")
 
                 val formatter = DecimalFormat("#,###")
@@ -140,9 +144,9 @@ class StatisticsFragment : BaseFragment() {
                 val percentText = "%.1f".format(kotlin.math.abs(percentValue))
 
                 val warningText = when {
-                    percentValue > 20 -> "⚠️ Chi tiêu có thể tăng $percentText% so với trung bình!"
-                    percentValue < -10 -> "✅ Bạn đang tiết kiệm hơn $percentText%!"
-                    else -> "🧾 Mọi thứ ổn định, tiếp tục giữ nhịp độ nhé!"
+                    percentValue > 20 -> "Chi tiêu có thể tăng $percentText% so với trung bình!"
+                    percentValue < -10 -> "Bạn đang tiết kiệm hơn $percentText%!"
+                    else -> "Mọi thứ ổn định, tiếp tục giữ nhịp độ nhé!"
                 }
 
 
@@ -158,12 +162,20 @@ class StatisticsFragment : BaseFragment() {
                     prediction.percent_change < -10 -> R.color.safe_green
                     else -> R.color.neutral_yellow
                 }
-                cardPrediction.setCardBackgroundColor(ContextCompat.getColor(requireContext(), colorRes))
+                cardPrediction.setCardBackgroundColor(
+                    ContextCompat.getColor(
+                        requireContext(),
+                        colorRes
+                    )
+                )
 
 
                 updatePieChart(pieData)
                 updateLineChart(lineData)
                 updateTotalUI(totalData)
+
+                val funds = statisticRepo.getFunds(userId)
+                updateLimitCardsFromFunds(funds)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -221,9 +233,6 @@ class StatisticsFragment : BaseFragment() {
     }
 
 
-
-
-
     private fun updateLineChart(data: List<StatisticLineEntry>) {
         val periods = data.groupBy { it.period }
         val lineDataSets = mutableListOf<ILineDataSet>()
@@ -236,7 +245,11 @@ class StatisticsFragment : BaseFragment() {
             }
 
             val dataSet = LineDataSet(lineEntries, period).apply {
-                color = if (period.contains("trước")) Color.rgb(252,179,179) else Color.rgb(209,234,250)
+                color = if (period.contains("trước")) Color.rgb(252, 179, 179) else Color.rgb(
+                    209,
+                    234,
+                    250
+                )
                 valueTextColor = Color.BLACK
                 setCircleColor(color)
                 circleRadius = 4f
@@ -316,4 +329,33 @@ class StatisticsFragment : BaseFragment() {
 
         popup.show()
     }
+
+    private fun updateLimitCardsFromFunds(data: List<Funds_home>) {
+        val container = requireView().findViewById<LinearLayout>(R.id.limitContainer)
+        container.removeAllViews()
+        val formatter = DecimalFormat("#,###")
+
+        data.forEach { fund ->
+            val view = layoutInflater.inflate(R.layout.item_limit_card, container, false)
+            val tvName = view.findViewById<TextView>(R.id.tvCategoryName)
+            val tvSummary = view.findViewById<TextView>(R.id.tvLimitSummary)
+            val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
+
+            tvName.text = fund.name
+            tvSummary.text = "Đã chi ${formatter.format(fund.total_expenses)} / ${formatter.format(fund.spending_limit)} đ"
+
+            val percent = if (fund.spending_limit == 0) 0
+            else (fund.total_expenses * 100 / fund.spending_limit).coerceAtMost(100)
+
+            progressBar.progress = percent
+
+            // Nếu bạn có icon từ URL hoặc resource, xử lý tại đây
+            // iconView.setImageResource(...) hoặc dùng Glide nếu icon là URL
+
+            container.addView(view)
+        }
+    }
+
+
+
 }
