@@ -201,7 +201,7 @@ interface ApiService {
         @Body request: Transaction
     ): Call<FundResponse>
 
-    @PUT("/api/users/update-profile")
+    @POST("/api/users/update-profile")
     suspend fun updateProfile(@Body data: Map<String, String>): Response<ResponseBody>
 
 }

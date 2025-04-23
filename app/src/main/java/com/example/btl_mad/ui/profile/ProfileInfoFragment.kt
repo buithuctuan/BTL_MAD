@@ -65,7 +65,7 @@ class ProfileInfoFragment : BaseFragment() {
                 message = "Bạn có chắc chắn muốn cập nhật thông tin cá nhân?",
                 onConfirm = {
                     val updatedUser = mapOf(
-                        "user_id" to SharedPrefManager.getUserId(requireContext()).toString(),
+                        "id" to SharedPrefManager.getUserId(requireContext()).toString(),
                         "full_name" to fullName.text.toString(),
                         "mail" to email.text.toString(),
                         "phoneNumber" to phone.text.toString(),
