@@ -30,6 +30,7 @@ import com.example.btl_mad.ui.home.adapter.FundsLimitAdapter
 import com.example.btl_mad.ui.home.adapter.RecentTransactionAdapter
 import com.example.btl_mad.ui.main.MainActivity
 import com.example.btl_mad.ui.notification.ListNotification
+import com.example.btl_mad.ui.transactionhistory.SpendingHistory
 
 import com.example.btl_mad.utils.SharedPrefManager
 import com.github.mikephil.charting.charts.LineChart
@@ -191,7 +192,7 @@ class HomeFragment : BaseFragment() {
 
 // Xem thêm → sang MainActivity (tab giao dịch)
         tvViewAll.setOnClickListener {
-            val intent = Intent(requireContext(), MainActivity::class.java)
+            val intent = Intent(requireContext(), SpendingHistory::class.java)
             startActivity(intent)
         }
 

@@ -458,7 +458,6 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
         val addCategoryLayout = dialogView.findViewById<LinearLayout>(R.id.addCategoryLayout)
         addCategoryLayout.setOnClickListener {
             dialog.dismiss()
-            // Gọi sang màn hình tạo danh mục mới:
             startActivity(Intent(this, AddFundActivity::class.java))
         }
 

@@ -15,9 +15,11 @@ import com.example.btl_mad.R
 import com.example.btl_mad.ui.home.HomeFragment
 import com.example.btl_mad.ui.statistics.StatisticsFragment
 import com.example.btl_mad.ui.BaseFragment
+import com.example.btl_mad.ui.fund.AddFundActivity
 import com.example.btl_mad.ui.profile.ProfileFragment
 import com.example.btl_mad.ui.transaction.AddTransactionExpenseActivity
 import com.example.btl_mad.ui.transaction.AddTransactionIncomeActivity
+import com.example.btl_mad.ui.transactionhistory.SpendingHistory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 
 class MainActivity : AppCompatActivity() {
@@ -54,6 +56,11 @@ class MainActivity : AppCompatActivity() {
             setActiveTab(navStatistics)
         }
 
+        //Lắng nghe sự kiện click thu chi
+        navTransactions.setOnClickListener{
+            val intent = Intent(this, SpendingHistory::class.java)
+            startActivity(intent)
+        }
         // Lắng nghe sk click dâu +
         nav_add.setOnClickListener {
             val dialog = BottomSheetDialog(this)
