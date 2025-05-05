@@ -22,6 +22,7 @@ import com.example.btl_mad.ui.home.adapter.CategoryAdapter
 import com.example.btl_mad.ui.notification.NotificationDialogFragment
 import com.example.btl_mad.data.Fund
 import com.example.btl_mad.ui.fund.AddFundActivity
+
 import com.example.btl_mad.ui.fund.FundIntro
 import com.example.btl_mad.ui.fund.ListFund
 import com.example.btl_mad.ui.home.adapter.CategorySpendingAdapter
@@ -29,6 +30,8 @@ import com.example.btl_mad.ui.home.adapter.FundsLimitAdapter
 import com.example.btl_mad.ui.home.adapter.RecentTransactionAdapter
 import com.example.btl_mad.ui.main.MainActivity
 import com.example.btl_mad.ui.notification.ListNotification
+import com.example.btl_mad.ui.transactionhistory.SpendingHistory
+
 import com.example.btl_mad.utils.SharedPrefManager
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
@@ -115,13 +118,13 @@ class HomeFragment : BaseFragment() {
 
         val btnNotification = view.findViewById<ImageView>(R.id.btnNotification)
         btnNotification.setOnClickListener {
+
             val intent = Intent(requireActivity(), ListNotification::class.java)
             startActivity(intent)
         }
 
 //Hiển thị Chi theo phân loại
         val rv = view.findViewById<RecyclerView>(R.id.rvCategorySpending)
-//        val btnGroup = view.findViewById<MaterialButtonToggleGroup>(R.id.btnGroupType)
         rv.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         lifecycleScope.launch {
@@ -142,7 +145,6 @@ class HomeFragment : BaseFragment() {
             startActivity(intent)
         }
 
-//        categoryRecycler.adapter = CategoryAdapter(emptyList())
         //Hiển thị danh sách giao dịch gần đây
         val rvTransactions = view.findViewById<RecyclerView>(R.id.rvRecentTransactions)
         rvTransactions.layoutManager = LinearLayoutManager(requireContext())
@@ -190,7 +192,7 @@ class HomeFragment : BaseFragment() {
 
 // Xem thêm → sang MainActivity (tab giao dịch)
         tvViewAll.setOnClickListener {
-            val intent = Intent(requireContext(), MainActivity::class.java)
+            val intent = Intent(requireContext(), SpendingHistory::class.java)
             startActivity(intent)
         }
 
