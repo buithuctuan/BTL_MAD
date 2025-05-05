@@ -21,6 +21,7 @@ import com.example.btl_mad.ui.BaseFragment
 import com.example.btl_mad.ui.home.adapter.CategoryAdapter
 import com.example.btl_mad.ui.notification.NotificationDialogFragment
 import com.example.btl_mad.data.Fund
+import com.example.btl_mad.data.FundInfo
 import com.example.btl_mad.ui.fund.AddFundActivity
 
 import com.example.btl_mad.ui.fund.FundIntro
@@ -109,7 +110,7 @@ class HomeFragment : BaseFragment() {
             }
             val tvViewAllLimits = view.findViewById<TextView>(R.id.tvViewAllLimits)
             tvViewAllLimits.setOnClickListener {
-                val intent = Intent(requireContext(), MainActivity::class.java)
+                val intent = Intent(requireContext(), ListFund::class.java)
                 startActivity(intent)
             }
         }
