@@ -16,7 +16,7 @@ class ProfileFragment : BaseFragment() {
     override fun getLayoutId() = R.layout.fragment_profile
     override fun getToolbarTitle(): String? = "Tài khoản"
     override fun useToolbar() = true
-    override fun showBackButton() = false
+    override fun showBackButton() = true
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

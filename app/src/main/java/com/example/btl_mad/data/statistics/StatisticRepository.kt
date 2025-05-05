@@ -34,6 +34,19 @@ class StatisticRepository {
             limit = 5
         )
     }
+    // Thống kê biểu đồ tròn theo khoảng tùy chọn
+    suspend fun getPieDataCustom(userId: Int, type: String, fromDate: String, toDate: String): List<StatisticPieEntry> {
+        return RetrofitClient.apiService.getPieDataCustom(userId, type, fromDate, toDate)
+    }
+
+    // Thống kê biểu đồ đường theo khoảng tùy chọn
+    suspend fun getLineDataCustom(userId: Int, type: String, fromDate: String, toDate: String): List<StatisticLineEntry> {
+        return RetrofitClient.apiService.getLineDataCustom(userId, type, fromDate, toDate)
+    }
+    suspend fun getTotalCustom(userId: Int, type: String, fromDate: String, toDate: String): StatisticTotalEntry {
+        return RetrofitClient.apiService.getStatisticTotalCustom(userId, type, fromDate, toDate)
+    }
+
 
 }
 

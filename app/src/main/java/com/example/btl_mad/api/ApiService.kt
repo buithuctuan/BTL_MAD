@@ -197,5 +197,28 @@ interface ApiService {
     @POST("/api/users/update-profile")
     suspend fun updateProfile(@Body data: Map<String, String>): Response<ResponseBody>
 
+    @GET("/api/statistics/pie/custom")
+    suspend fun getPieDataCustom(
+        @Query("userId") userId: Int,
+        @Query("type") type: String,
+        @Query("from") fromDate: String,
+        @Query("to") toDate: String
+    ): List<StatisticPieEntry>
+
+    @GET("/api/statistics/line/custom")
+    suspend fun getLineDataCustom(
+        @Query("userId") userId: Int,
+        @Query("type") type: String,
+        @Query("from") fromDate: String,
+        @Query("to") toDate: String
+    ): List<StatisticLineEntry>
+    @GET("api/statistics/summary/custom")
+    suspend fun getStatisticTotalCustom(
+        @Query("userId") userId: Int,
+        @Query("type") type: String,
+        @Query("from_date") fromDate: String,
+        @Query("to_date") toDate: String
+    ): StatisticTotalEntry
+
 }
 

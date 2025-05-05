@@ -87,9 +87,12 @@ class ProfileInfoFragment : BaseFragment() {
                                     showCreateNew = false
                                 )
                             } else {
+                                val errorBody = response.errorBody()?.string()
+                                android.util.Log.e("PROFILE_UPDATE", "Lỗi cập nhật: $errorBody")
                                 DialogUtils.showErrorDialog(requireContext(), "Cập nhật thất bại!")
                             }
                         } catch (e: Exception) {
+                            android.util.Log.e("PROFILE_UPDATE", "Exception: ${e.message}", e)
                             DialogUtils.showErrorDialog(requireContext(), "Lỗi kết nối server")
                         }
                     }

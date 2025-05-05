@@ -36,6 +36,11 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.flexbox.FlexboxLayout
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
+import android.app.DatePickerDialog
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
+
 
 class StatisticsFragment : BaseFragment() {
 
@@ -55,6 +60,10 @@ class StatisticsFragment : BaseFragment() {
     private val statisticRepo = StatisticRepository()
     private var selectedMode = "chi"
     private var selectedPeriod = "month"
+    private var fromDate: String? = null
+    private var toDate: String? = null
+    private var isCustomDate = false
+
 
     override fun getLayoutId(): Int = R.layout.fragment_statistics
     override fun getToolbarTitle(): String? = "Thống kê"
@@ -117,6 +126,7 @@ class StatisticsFragment : BaseFragment() {
 
     private fun fetchStatistics() {
         val userId = SharedPrefManager.getUserId(requireContext())
+        Log.d("DEBUG", "fetchStatistics userId = $userId")
         if (userId == -1) {
             Log.e("STATISTICS", "User ID not found in SharedPreferences")
             return
@@ -124,17 +134,37 @@ class StatisticsFragment : BaseFragment() {
 
         lifecycleScope.launch {
             try {
-                val pieData = statisticRepo.getPieData(userId, selectedMode, selectedPeriod)
-                Log.d("STATISTICS", "Pie response: $pieData")
+                Log.d("STATISTICS", "Calling getPieData")
+                val pieData = if (selectedPeriod == "custom")
+                    statisticRepo.getPieDataCustom(userId, selectedMode, fromDate!!, toDate!!)
+                else
+                    statisticRepo.getPieData(userId, selectedMode, selectedPeriod)
 
-                val lineData = statisticRepo.getLineData(userId, selectedMode, selectedPeriod)
-                Log.d("STATISTICS", "Line response: $lineData")
+                Log.d("STATISTICS", "PieData received: $pieData")
 
-                val totalData = statisticRepo.getTotal(userId, selectedMode, selectedPeriod)
-                Log.d("STATISTICS", "Summary response: $totalData")
+                Log.d("STATISTICS", "Calling getLineData")
+                val lineData = if (selectedPeriod == "custom")
+                    statisticRepo.getLineDataCustom(userId, selectedMode, fromDate!!, toDate!!)
+                else
+                    statisticRepo.getLineData(userId, selectedMode, selectedPeriod)
+                Log.d("STATISTICS", "LineData received: $lineData")
 
+                Log.d("STATISTICS", "Calling getTotal")
+                val totalData = if (isCustomDate) {
+                    statisticRepo.getTotalCustom(userId, selectedMode, fromDate!!, toDate!!)
+                } else {
+                    statisticRepo.getTotal(userId, selectedMode, selectedPeriod)
+                }
+
+                Log.d("STATISTICS", "TotalData received: $totalData")
+
+                Log.d("STATISTICS", "Calling getPredictedSpending")
                 val prediction = statisticRepo.getPredictedSpending(userId, "chi")
-                Log.d("STATISTICS", "Prediction: $prediction")
+                Log.d("STATISTICS", "Prediction received: $prediction")
+
+                updatePieChart(pieData)
+                updateLineChart(lineData)
+                updateTotalUI(totalData)
 
                 val formatter = DecimalFormat("#,###")
                 val predicted = formatter.format(prediction.predicted)
@@ -142,41 +172,35 @@ class StatisticsFragment : BaseFragment() {
 
                 val percentValue = prediction.percent_change
                 val percentText = "%.1f".format(kotlin.math.abs(percentValue))
-
                 val warningText = when {
                     percentValue > 20 -> "Chi tiêu có thể tăng $percentText% so với trung bình!"
                     percentValue < -10 -> "Bạn đang tiết kiệm hơn $percentText%!"
                     else -> "Mọi thứ ổn định, tiếp tục giữ nhịp độ nhé!"
                 }
 
-
                 tvPredictionSummary.text = """
-    Dự đoán tháng này: $predicted đ
-    Trung bình 3 tháng gần nhất: $average đ
-    $warningText
+Dự đoán tháng này: $predicted đ
+Trung bình 3 tháng gần nhất: $average đ
+$warningText
 """.trimIndent()
 
-// Đổi màu nền tùy theo phần trăm
                 val colorRes = when {
-                    prediction.percent_change > 20 -> R.color.warning_red
-                    prediction.percent_change < -10 -> R.color.safe_green
+                    percentValue > 20 -> R.color.warning_red
+                    percentValue < -10 -> R.color.safe_green
                     else -> R.color.neutral_yellow
                 }
+
                 cardPrediction.setCardBackgroundColor(
-                    ContextCompat.getColor(
-                        requireContext(),
-                        colorRes
-                    )
+                    ContextCompat.getColor(requireContext(), colorRes)
                 )
 
-
-                updatePieChart(pieData)
-                updateLineChart(lineData)
-                updateTotalUI(totalData)
-
+                Log.d("STATISTICS", "Calling getFunds")
                 val funds = statisticRepo.getFunds(userId)
+                Log.d("STATISTICS", "Funds received: $funds")
                 updateLimitCardsFromFunds(funds)
+
             } catch (e: Exception) {
+                Log.e("STATISTICS", "Exception: ${e.localizedMessage}", e)
                 e.printStackTrace()
             }
         }
@@ -234,32 +258,52 @@ class StatisticsFragment : BaseFragment() {
 
 
     private fun updateLineChart(data: List<StatisticLineEntry>) {
-        val periods = data.groupBy { it.period }
         val lineDataSets = mutableListOf<ILineDataSet>()
         val xLabels = mutableListOf<String>()
 
-        periods.forEach { (period, entries) ->
-            val lineEntries = entries.mapIndexed { index, entry ->
-                if (xLabels.size <= index) xLabels.add(entry.timeUnit)
+        if (selectedPeriod == "custom") {
+            // Trường hợp khoảng tùy chọn: chỉ 1 đường line
+            val entries = data.mapIndexed { index, entry ->
+                xLabels.add(entry.timeUnit)
                 Entry(index.toFloat(), entry.amount)
             }
 
-            val dataSet = LineDataSet(lineEntries, period).apply {
-                color = if (period.contains("trước")) Color.rgb(252, 179, 179) else Color.rgb(
-                    209,
-                    234,
-                    250
-                )
+            val dataSet = LineDataSet(entries, "Chi tiêu").apply {
+                color = Color.rgb(102, 178, 255)
                 valueTextColor = Color.BLACK
                 setCircleColor(color)
                 circleRadius = 4f
                 lineWidth = 2f
                 setDrawFilled(true)
                 fillAlpha = 60
-                setDrawValues(false) // Ẩn giá trị số nếu quá nhiều điểm
+                setDrawValues(false)
             }
 
             lineDataSets.add(dataSet)
+        } else {
+            // Trường hợp mặc định: so sánh các kỳ
+            val periods = data.groupBy { it.period }
+
+            periods.forEach { (period, entries) ->
+                val lineEntries = entries.mapIndexed { index, entry ->
+                    if (xLabels.size <= index) xLabels.add(entry.timeUnit)
+                    Entry(index.toFloat(), entry.amount)
+                }
+
+                val color = if (period.contains("trước")) Color.rgb(252, 179, 179) else Color.rgb(209, 234, 250)
+                val dataSet = LineDataSet(lineEntries, period).apply {
+                    this.color = color
+                    valueTextColor = Color.BLACK
+                    setCircleColor(color)
+                    circleRadius = 4f
+                    lineWidth = 2f
+                    setDrawFilled(true)
+                    fillAlpha = 60
+                    setDrawValues(false)
+                }
+
+                lineDataSets.add(dataSet)
+            }
         }
 
         val lineChartData = LineData(lineDataSets)
@@ -268,27 +312,24 @@ class StatisticsFragment : BaseFragment() {
         // Tùy chỉnh trục X để hỗ trợ cuộn ngang
         val xAxis = lineChart.xAxis
         xAxis.valueFormatter = IndexAxisValueFormatter(xLabels)
-        xAxis.labelRotationAngle = -45f // xoay nhãn cho đỡ chồng
+        xAxis.labelRotationAngle = -45f
         xAxis.granularity = 1f
         xAxis.setDrawGridLines(false)
 
-        // Cấu hình cuộn ngang
         lineChart.setDragEnabled(true)
         lineChart.setScaleEnabled(false)
-        lineChart.setVisibleXRangeMaximum(7f) // hiển thị tối đa 7 ngày cùng lúc (tuỳ chỉnh)
+        lineChart.setVisibleXRangeMaximum(7f)
         lineChart.moveViewToX((xLabels.size - 7).toFloat().coerceAtLeast(0f))
 
-        // Tùy chỉnh trục Y
         lineChart.axisRight.isEnabled = false
-
         lineChart.description = Description().apply { text = "" }
         lineChart.invalidate()
 
         val markerView = CustomMarkerView(requireContext(), R.layout.custom_marker_view)
         markerView.chartView = lineChart
         lineChart.marker = markerView
-
     }
+
 
 
     private fun updateTotalUI(total: StatisticTotalEntry) {
@@ -315,11 +356,16 @@ class StatisticsFragment : BaseFragment() {
                 R.id.menu_week -> "week" to "Tuần này"
                 R.id.menu_month -> "month" to "Tháng này"
                 R.id.menu_year -> "year" to "Năm này"
+                R.id.menu_custom -> {
+                    showDateRangePicker()
+                    return@setOnMenuItemClickListener true
+                }
                 else -> null to null
             }
 
             periodKey?.let {
                 selectedPeriod = it
+                isCustomDate = false
                 tvFilter.text = displayText
                 fetchStatistics()
             }
@@ -329,6 +375,34 @@ class StatisticsFragment : BaseFragment() {
 
         popup.show()
     }
+
+    private fun showDateRangePicker() {
+        val now = Calendar.getInstance()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+
+        val datePickerFrom = DatePickerDialog(requireContext(), { _, y, m, d ->
+            val calFrom = Calendar.getInstance().apply { set(y, m, d) }
+            fromDate = dateFormat.format(calFrom.time)
+
+            val datePickerTo = DatePickerDialog(requireContext(), { _, y2, m2, d2 ->
+                val calTo = Calendar.getInstance().apply { set(y2, m2, d2) }
+                toDate = dateFormat.format(calTo.time)
+
+                isCustomDate = true
+                selectedPeriod = "custom"
+                tvFilter.text = "Tùy chọn: $fromDate - $toDate"
+                fetchStatistics()
+
+            }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH))
+            datePickerTo.setTitle("Chọn ngày kết thúc")
+            datePickerTo.show()
+
+        }, now.get(Calendar.YEAR), now.get(Calendar.MONTH), now.get(Calendar.DAY_OF_MONTH))
+
+        datePickerFrom.setTitle("Chọn ngày bắt đầu")
+        datePickerFrom.show()
+    }
+
 
     private fun updateLimitCardsFromFunds(data: List<Funds_home>) {
         val container = requireView().findViewById<LinearLayout>(R.id.limitContainer)

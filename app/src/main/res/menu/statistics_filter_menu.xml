@@ -3,4 +3,5 @@
     <item android:id="@+id/menu_week" android:title="Tuần này" />
     <item android:id="@+id/menu_month" android:title="Tháng này" />
     <item android:id="@+id/menu_year" android:title="Năm này" />
+    <item android:id="@+id/menu_custom" android:title="Tuỳ chọn" />
 </menu>
