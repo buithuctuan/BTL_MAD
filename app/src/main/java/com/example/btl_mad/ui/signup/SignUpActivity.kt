@@ -137,7 +137,7 @@ class SignUpActivity : AppCompatActivity() {
                 full_name = fullName,
                 dateOfBirth = dobFormatted,
                 mail = email,
-                phoneNumber = phoneNumber,  // Sử dụng phoneNumber thay vì phone
+                phoneNumber = phoneNumber,
                 sex = gender,
                 question_id = selectedQuestionId,
                 answer_for_forgot_password = securityAnswer,

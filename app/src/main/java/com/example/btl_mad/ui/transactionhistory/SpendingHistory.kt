@@ -15,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -55,11 +56,19 @@ class SpendingHistory : AppCompatActivity() {
         "Tháng trước" to false,
         "Thời gian khác" to false
     )
-
+    private lateinit var searchText: EditText
+    private lateinit var iconSearch: ImageButton
     var spendingView = true
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.spending_history)
+
+        searchText = findViewById(R.id.searchTransaction)
+        iconSearch = findViewById(R.id.searchIcon)
+
+        iconSearch.setOnClickListener{
+            updateTransactionList()
+        }
 
         // Khởi tạo tổng thu và chi
         updateTotalSpendAndIncome()
@@ -149,7 +158,8 @@ class SpendingHistory : AppCompatActivity() {
         val userId = SharedPrefManager.getUserId(this) // ID người dùng
         val inOutBudget = if (spendingView) "chi" else "thu" // Loại giao dịch (chi tiêu)
         val transactionTypeIds = transactionTypeIdsChose // Danh sách ID loại giao dịch
-        val transactionReq = TransactionRequest(user_id =userId, in_out_budget = inOutBudget, time_range = timeRange, transaction_type_ids = transactionTypeIds)
+        val new_keyword = searchText.text.toString()
+        val transactionReq = TransactionRequest(user_id =userId, in_out_budget = inOutBudget, key_word = new_keyword, time_range = timeRange, transaction_type_ids = transactionTypeIds)
         Log.d("TransactionRequest", "User ID: $transactionReq")
         val call = RetrofitClient.apiService.getListTransactions(
             transactionReq

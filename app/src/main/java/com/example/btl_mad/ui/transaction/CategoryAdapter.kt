@@ -25,7 +25,7 @@ class CategoryAdapter(
         // Hiển thị tên
         nameView.text = category?.name
 
-        // Hiển thị icon (giả định icon là tên tài nguyên trong drawable)
+        // Hiển thị icon
         try {
             val resId = context.resources.getIdentifier(category?.icon ?: "ic_default_category", "drawable", context.packageName)
             iconView.setImageResource(resId)

@@ -161,7 +161,9 @@
             android:padding="8dp">
 
 
-            <ImageView
+            <ImageButton
+                android:id="@+id/searchIcon"
+                android:background="@android:color/transparent"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginEnd="8dp"

@@ -98,7 +98,6 @@ class LoginActivity : AppCompatActivity() {
                         // Chuyển đến MainActivity
 
                         val intent = Intent(this@LoginActivity, MainActivity::class.java)
-
                         intent.putExtra("username", username)
                         startActivity(intent)
                         finish()

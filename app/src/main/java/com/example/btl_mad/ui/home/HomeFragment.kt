@@ -159,7 +159,7 @@ class HomeFragment : BaseFragment() {
                     val data = RetrofitClient.apiService.getRecentTransactions(
                         userId = userId,
                         type = type,
-                        limit = 5 // hoặc 10 tùy bạn
+                        limit = 5
                     )
                     rvTransactions.adapter = RecentTransactionAdapter(data)
                 } catch (e: Exception) {
