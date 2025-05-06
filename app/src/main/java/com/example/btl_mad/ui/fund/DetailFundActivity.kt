@@ -1,5 +1,6 @@
 package com.example.btl_mad.ui.fund
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -21,6 +23,7 @@ import com.example.btl_mad.api.RetrofitClient
 import com.example.btl_mad.data.FundDetail
 import com.example.btl_mad.data.FundInfo
 import com.example.btl_mad.data.TransFund
+import com.example.btl_mad.ui.main.MainActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,6 +38,7 @@ class DetailFundActivity : AppCompatActivity() {
     private lateinit var monthList: ArrayList<String>
     private lateinit var adapter: ArrayAdapter<String>
     private lateinit var searchEditText: EditText
+    private lateinit var navHome: LinearLayout
     private var month: Int = 0
     private var year: Int = 0
     private var fundId: Int = -1
@@ -82,9 +86,19 @@ class DetailFundActivity : AppCompatActivity() {
 
         if (fundId != -1) {
             // Gọi API để lấy danh sách giao dịch của quỹ
-            getTransactions(fundId, userId, month, year, type, search)
-            getFundInfo(fundId, userId, month, year)
+            getTransactions(fundId, month, year, type, search)
+            getFundInfo(fundId, month, year)
         }
+
+        navHome = findViewById(R.id.nav_home)
+        navHome.setOnClickListener {
+            navigateToHome()
+        }
+    }
+
+    fun navigateToHome() {
+        val intent = Intent(this@DetailFundActivity, MainActivity::class.java)
+        startActivity(intent)
     }
 
     private fun handleMonthSelection(selectedMonth: String) {
@@ -98,8 +112,8 @@ class DetailFundActivity : AppCompatActivity() {
         when (selectedMonth) {
             "Tháng này" -> {
                 // Không thay đổi tháng và năm
-                getTransactions(fundId, userId, month, year, type, search)
-                getFundInfo(fundId, userId, month, year)
+                getTransactions(fundId, month, year, type, search)
+                getFundInfo(fundId, month, year)
             }
             "Tháng trước" -> {
                 // Lùi lại 1 tháng
@@ -108,8 +122,8 @@ class DetailFundActivity : AppCompatActivity() {
                     month = 12
                     year -=1
                 }
-                getTransactions(fundId, userId, month, year, type, search)
-                getFundInfo(fundId, userId, month, year)
+                getTransactions(fundId, month, year, type, search)
+                getFundInfo(fundId, month, year)
             }
             "Tháng trước nữa" -> {
                 month -= 2
@@ -117,8 +131,8 @@ class DetailFundActivity : AppCompatActivity() {
                     month += 12
                     year -= 1  // Điều chỉnh năm khi lùi về tháng trước nữa
                 }
-                getTransactions(fundId, userId, month, year, type, search)
-                getFundInfo(fundId, userId, month, year)
+                getTransactions(fundId, month, year, type, search)
+                getFundInfo(fundId, month, year)
             }
         }
     }
@@ -126,7 +140,7 @@ class DetailFundActivity : AppCompatActivity() {
     fun onSearchClick(view: View) {
         val searchKeyword = searchEditText.text.toString().trim()
         if (fundId != -1) {
-            getTransactions(fundId, userId, month, year, type, searchKeyword)
+            getTransactions(fundId, month, year, type, searchKeyword)
         }
     }
 
@@ -135,19 +149,19 @@ class DetailFundActivity : AppCompatActivity() {
         when (view.id) {
             R.id.totalSpending -> {
                 type = "chi"
-                getTransactions(fundId, userId, month, year, type, searchKeyword)
+                getTransactions(fundId, month, year, type, searchKeyword)
             }
             R.id.totalIncome -> {
                 type = "thu"
-                getTransactions(fundId, userId, month, year, type, searchKeyword)
+                getTransactions(fundId, month, year, type, searchKeyword)
             }
         }
     }
 
 
-    private fun getTransactions(fundId: Int, userId: Int, month: Int, year: Int, type: String, search: String) {
+    private fun getTransactions(fundId: Int, month: Int, year: Int, type: String, search: String) {
         // Gọi API thông qua RetrofitClient
-        RetrofitClient.apiService.getTransactionsFund(fundId, userId, month, year, type, search).enqueue(object : Callback<List<TransFund>> {
+        RetrofitClient.apiService.getTransactionsFund(fundId, month, year, type, search).enqueue(object : Callback<List<TransFund>> {
             override fun onResponse(call: Call<List<TransFund>>, response: Response<List<TransFund>>) {
                 if (response.isSuccessful && response.body() != null) {
                     val transactions = response.body()!!
@@ -172,9 +186,9 @@ class DetailFundActivity : AppCompatActivity() {
         })
     }
 
-    private fun getFundInfo(fundId: Int, userId: Int, month: Int, year: Int) {
+    private fun getFundInfo(fundId: Int, month: Int, year: Int) {
         // Gọi API sử dụng Retrofit
-        RetrofitClient.apiService.getFundInfo(fundId, userId, month, year).enqueue(object : Callback<List<FundInfo>> {
+        RetrofitClient.apiService.getFundInfo(fundId, month, year).enqueue(object : Callback<List<FundInfo>> {
 
             override fun onResponse(call: Call<List<FundInfo>>, response: Response<List<FundInfo>>) {
                 if (response.isSuccessful && response.body() != null) {
@@ -227,9 +241,9 @@ class DetailFundActivity : AppCompatActivity() {
     }
 
     fun openEditDialog(view: View) {
-        RetrofitClient.apiService.getFundDetail(fundId).enqueue(object : Callback<List<FundDetail>> {
+        RetrofitClient.apiService.getFundInfo(fundId, month, year).enqueue(object : Callback<List<FundInfo>> {
 
-            override fun onResponse(call: Call<List<FundDetail>>, response: Response<List<FundDetail>>) {
+            override fun onResponse(call: Call<List<FundInfo>>, response: Response<List<FundInfo>>) {
                 if (response.isSuccessful && response.body() != null) {
                     val fundInfoList = response.body()
 
@@ -242,7 +256,7 @@ class DetailFundActivity : AppCompatActivity() {
                         if (fundInfo != null) {
                             val bundle = Bundle()
                             bundle.putInt("fundId", fundInfo.id)
-                            bundle.putInt("userId", fundInfo.user_id)
+                            bundle.putInt("userId", userId)
                             bundle.putString("icon", fundInfo.icon)
                             bundle.putString("name", fundInfo.name)
                             bundle.putInt("budget", fundInfo.budget)
@@ -260,9 +274,10 @@ class DetailFundActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onFailure(call: Call<List<FundDetail>>, t: Throwable) {
+            override fun onFailure(call: Call<List<FundInfo>>, t: Throwable) {
                 Toast.makeText(this@DetailFundActivity, "Lỗi kết nối API", Toast.LENGTH_SHORT).show()
             }
+
         })
     }
 }

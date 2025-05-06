@@ -41,7 +41,7 @@ class FundAdapter(private val fundList: List<Fund>) :
             binding.amountTextView1.text = formatter.format(fund.budget)
             binding.out.text = formatter.format(fund.total_expenses)
             binding.conlai.text = formatter.format(fund.days_left)
-            binding.hanmucngay.text = formatter.format(fund.spending_limit) + "/ngày"
+            binding.hanmucngay.text = formatter.format(fund.spending_limit) + "VNĐ/ngày"
 
             val iconFileName = fund.icon  // Đây là tên file không có đuôi (ví dụ: "fund_icon_1")
             val resourceId = binding.imageView.context.resources.getIdentifier(

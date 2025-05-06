@@ -1,0 +1,20 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_legend_outline"
+    android:paddingHorizontal="12dp"
+    android:paddingVertical="6dp"
+    android:layout_margin="4dp"
+    android:minHeight="32dp"
+    android:gravity="center">
+
+    <TextView
+        android:id="@+id/tvLegend"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="50% Cần thiết"
+        android:textSize="14sp"
+        android:textColor="@android:color/black"
+        android:textStyle="bold"/>
+</LinearLayout>

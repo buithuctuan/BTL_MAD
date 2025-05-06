@@ -1,57 +1,64 @@
 package com.example.btl_mad.ui
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import androidx.appcompat.widget.Toolbar
+import android.util.Log
+import android.view.*
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.example.btl_mad.R
 
 abstract class BaseFragment : Fragment() {
-    private var toolbar: Toolbar? = null
-    private var toolbarTitle: String? = null
-
-    // Phương thức trừu tượng để lấy layout ID của Fragment
     abstract fun getLayoutId(): Int
-
-    // Phương thức để lấy tiêu đề của Toolbar
     open fun getToolbarTitle(): String? = null
-
-    // Phương thức để thiết lập menu cho Toolbar (nếu cần)
-    open fun setupToolbarMenu(toolbar: Toolbar) {}
+    open fun useToolbar(): Boolean = true
+    open fun showBackButton(): Boolean = true
+    open fun shouldNavigateToHomeOnBack(): Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Tạo layout chính bao gồm Toolbar và nội dung Fragment
+        Log.d("BASE_FRAGMENT", "onCreateView called for ${this::class.java.simpleName}")
+
         val rootView = inflater.inflate(R.layout.fragment_base, container, false) as ViewGroup
-        toolbar = rootView.findViewById(R.id.toolbar)
+        val titleView = rootView.findViewById<TextView>(R.id.toolbar_title)
+        val backBtn = rootView.findViewById<ImageView>(R.id.btn_back)
 
-        // Thêm layout của Fragment con vào container
-        val contentView = inflater.inflate(getLayoutId(), rootView, false)
-        val container = rootView.findViewById<ViewGroup>(R.id.fragment_content)
-        container.addView(contentView)
+        titleView?.text = getToolbarTitle()
+        Log.d("BASE_FRAGMENT", "Title: ${getToolbarTitle()}")
 
-        // Thiết lập Toolbar
-        toolbar?.let { setupToolbar(it) }
-
-        return rootView
-    }
-
-    private fun setupToolbar(toolbar: Toolbar) {
-        // Thiết lập tiêu đề
-        toolbarTitle = getToolbarTitle()
-        toolbar.title = toolbarTitle
-
-        // Thiết lập nút back
-        toolbar.setNavigationIcon(R.drawable.ic_back)
-        toolbar.setNavigationOnClickListener {
-            requireActivity().onBackPressed()
+        if (useToolbar()) {
+            titleView?.visibility = View.VISIBLE
+            if (showBackButton()) {
+                backBtn?.visibility = View.VISIBLE
+                backBtn?.setOnClickListener {
+                    Log.d("BASE_FRAGMENT", "Back button clicked")
+                    if (shouldNavigateToHomeOnBack()) {
+                        Log.d("BASE_FRAGMENT", "Back action: popBackStackImmediate")
+                        requireActivity().supportFragmentManager.popBackStackImmediate()
+                    } else {
+                        Log.d("BASE_FRAGMENT", "Back action: onBackPressedDispatcher")
+                        requireActivity().onBackPressedDispatcher.onBackPressed()
+                    }
+                }
+            } else {
+                backBtn?.visibility = View.GONE
+                Log.d("BASE_FRAGMENT", "Back button hidden")
+            }
+        } else {
+            titleView?.visibility = View.GONE
+            backBtn?.visibility = View.GONE
+            Log.d("BASE_FRAGMENT", "Toolbar hidden")
         }
 
-        // Thiết lập menu (nếu có)
-        setupToolbarMenu(toolbar)
+        val contentView = inflater.inflate(getLayoutId(), rootView, false)
+        val containerLayout = rootView.findViewById<ViewGroup>(R.id.fragment_content)
+        containerLayout.removeAllViews()
+        containerLayout.addView(contentView)
+
+        Log.d("BASE_FRAGMENT", "Content layout added for ${this::class.java.simpleName}")
+
+        return rootView
     }
 }
