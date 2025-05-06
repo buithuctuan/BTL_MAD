@@ -37,6 +37,10 @@ import com.google.android.flexbox.FlexboxLayout
 import kotlinx.coroutines.launch
 import java.text.DecimalFormat
 import android.app.DatePickerDialog
+import android.content.Intent
+import android.graphics.drawable.LayerDrawable
+import android.widget.Button
+import com.example.btl_mad.ui.transactionhistory.SpendingHistory
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -107,7 +111,17 @@ class StatisticsFragment : BaseFragment() {
             updateCardSelection()
             fetchStatistics()
         }
+
+        val btnMoreDetails = view.findViewById<Button>(R.id.btnMoreDetails)
+        btnMoreDetails.setOnClickListener {
+            val intent = Intent(requireContext(), SpendingHistory::class.java)
+            intent.putExtra("mode", selectedMode) // truyền "chi" hoặc "thu"
+            startActivity(intent)
+        }
+
     }
+
+
 
     @SuppressLint("ResourceType")
     private fun updateCardSelection() {
@@ -159,6 +173,7 @@ class StatisticsFragment : BaseFragment() {
                 Log.d("STATISTICS", "TotalData received: $totalData")
 
                 Log.d("STATISTICS", "Calling getPredictedSpending")
+                //Gọi API / repo để lấy dữ liệu dự đoán
                 val prediction = statisticRepo.getPredictedSpending(userId, "chi")
                 Log.d("STATISTICS", "Prediction received: $prediction")
 
@@ -166,24 +181,26 @@ class StatisticsFragment : BaseFragment() {
                 updateLineChart(lineData)
                 updateTotalUI(totalData)
 
+                //Định dạng dữ liệu cho hiển thị
                 val formatter = DecimalFormat("#,###")
                 val predicted = formatter.format(prediction.predicted)
-                val average = formatter.format(prediction.average)
-
+                val average = formatter.format(prediction.weighted_average)
+                //Tính phần trăm thay đổi
                 val percentValue = prediction.percent_change
                 val percentText = "%.1f".format(kotlin.math.abs(percentValue))
+                //Sinh thông điệp cảnh báo
                 val warningText = when {
                     percentValue > 20 -> "Chi tiêu có thể tăng $percentText% so với trung bình!"
                     percentValue < -10 -> "Bạn đang tiết kiệm hơn $percentText%!"
                     else -> "Mọi thứ ổn định, tiếp tục giữ nhịp độ nhé!"
                 }
-
+                //Hiển thị đoạn dự đoán lên giao diện
                 tvPredictionSummary.text = """
 Dự đoán tháng này: $predicted đ
 Trung bình 3 tháng gần nhất: $average đ
 $warningText
 """.trimIndent()
-
+                //Đổi màu nền của cardPrediction để cảnh báo trực quan:
                 val colorRes = when {
                     percentValue > 20 -> R.color.warning_red
                     percentValue < -10 -> R.color.safe_green
@@ -203,6 +220,10 @@ $warningText
                 Log.e("STATISTICS", "Exception: ${e.localizedMessage}", e)
                 e.printStackTrace()
             }
+            val response = statisticRepo.getMonthlyIncomeVsSpending(userId)
+            val incomeData = response.first
+            val spendingData = response.second
+            updateIncomeVsSpendingChart(incomeData, spendingData)
         }
     }
 
@@ -416,19 +437,92 @@ $warningText
             val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
 
             tvName.text = fund.name
+            val percent = if (fund.spending_limit == 0) 0
+            else (fund.total_expenses * 100 / fund.spending_limit)
+
             tvSummary.text = "Đã chi ${formatter.format(fund.total_expenses)} / ${formatter.format(fund.spending_limit)} đ"
 
-            val percent = if (fund.spending_limit == 0) 0
-            else (fund.total_expenses * 100 / fund.spending_limit).coerceAtMost(100)
+            val layerDrawable = progressBar.progressDrawable as LayerDrawable
+            val progressDrawable = layerDrawable.findDrawableByLayerId(android.R.id.progress)
 
-            progressBar.progress = percent
+            when {
+                percent >= 100 -> {
+                    tvSummary.setTextColor(Color.RED)
+                    tvSummary.append(" ⚠ Vượt hạn mức!")
+                    progressDrawable.setTint(Color.RED)
+                }
+                percent >= 80 -> {
+                    tvSummary.setTextColor(Color.parseColor("#FFA500")) // Cam
+                    tvSummary.append(" ⚠ Sắp vượt!")
+                    progressDrawable.setTint(Color.parseColor("#FFA500"))
+                }
+                else -> {
+                    tvSummary.setTextColor(Color.BLACK)
+                    progressDrawable.setTint(ContextCompat.getColor(requireContext(), R.color.blue))
+                }
+            }
 
-            // Nếu bạn có icon từ URL hoặc resource, xử lý tại đây
-            // iconView.setImageResource(...) hoặc dùng Glide nếu icon là URL
+
+            progressBar.max = 100
+            progressBar.progress = percent.coerceAtMost(100)
 
             container.addView(view)
         }
     }
+    private fun updateIncomeVsSpendingChart(
+        incomeData: List<StatisticLineEntry>,
+        spendingData: List<StatisticLineEntry>
+    ) {
+        val xLabels = (1..12).map { "Tháng $it" }
+
+        val incomeEntries = incomeData.mapIndexed { index, entry ->
+            Entry(index.toFloat(), entry.amount)
+        }
+        val spendingEntries = spendingData.mapIndexed { index, entry ->
+            Entry(index.toFloat(), entry.amount)
+        }
+
+        val incomeDataSet = LineDataSet(incomeEntries, "Thu nhập").apply {
+            color = Color.rgb(76, 175, 80) // xanh lá
+            setCircleColor(color)
+            lineWidth = 2f
+            setDrawValues(false)
+            setDrawFilled(true)
+            fillAlpha = 60
+        }
+
+        val spendingDataSet = LineDataSet(spendingEntries, "Chi tiêu").apply {
+            color = Color.rgb(244, 67, 54) // đỏ
+            setCircleColor(color)
+            lineWidth = 2f
+            setDrawValues(false)
+            setDrawFilled(true)
+            fillAlpha = 60
+        }
+
+        val lineData = LineData(listOf(incomeDataSet, spendingDataSet))
+
+        val chart = requireView().findViewById<LineChart>(R.id.chartIncomeVsSpending)
+        chart.data = lineData
+
+        chart.xAxis.apply {
+            valueFormatter = IndexAxisValueFormatter(xLabels)
+            granularity = 1f
+            labelRotationAngle = -45f
+            setDrawGridLines(false)
+        }
+
+        chart.axisRight.isEnabled = false
+        chart.description = Description().apply { text = "Thu vs Chi theo tháng" }
+        chart.setVisibleXRangeMaximum(12f)
+        chart.invalidate()
+
+        val markerView = CustomMarkerView(requireContext(), R.layout.custom_marker_view)
+        markerView.chartView = chart
+        chart.marker = markerView
+    }
+
+
 
 
 

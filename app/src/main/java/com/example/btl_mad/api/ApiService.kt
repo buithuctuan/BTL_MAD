@@ -27,6 +27,7 @@ import com.example.btl_mad.data.TransactionType
 import com.example.btl_mad.data.TransFund
 import com.example.btl_mad.data.FundInfo
 import com.example.btl_mad.data.FundDetail
+import com.example.btl_mad.data.statistics.MonthlyIncomeSpendingResponse
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Response
@@ -219,6 +220,11 @@ interface ApiService {
         @Query("from_date") fromDate: String,
         @Query("to_date") toDate: String
     ): StatisticTotalEntry
+
+    @GET("api/statistics/monthlyIncomeSpending")
+    suspend fun getMonthlyIncomeVsSpending(
+        @Query("userId") userId: Int
+    ): MonthlyIncomeSpendingResponse
 
 }
 

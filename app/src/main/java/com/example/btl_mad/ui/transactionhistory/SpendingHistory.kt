@@ -60,7 +60,8 @@ class SpendingHistory : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.spending_history)
-
+        val mode = intent.getStringExtra("mode") ?: "chi"
+        spendingView = mode != "thu"
         // Khởi tạo tổng thu và chi
         updateTotalSpendAndIncome()
 

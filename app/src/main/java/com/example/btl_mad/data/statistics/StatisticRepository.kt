@@ -47,6 +47,10 @@ class StatisticRepository {
         return RetrofitClient.apiService.getStatisticTotalCustom(userId, type, fromDate, toDate)
     }
 
+    suspend fun getMonthlyIncomeVsSpending(userId: Int): Pair<List<StatisticLineEntry>, List<StatisticLineEntry>> {
+        val response = RetrofitClient.apiService.getMonthlyIncomeVsSpending(userId)
+        return response.income to response.spending
+    }
 
 }
 
