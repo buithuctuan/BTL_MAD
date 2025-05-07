@@ -58,7 +58,7 @@ class HomeFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val tvGreeting = view.findViewById<TextView>(R.id.tvGreeting)
-        val limitRecycler = view.findViewById<RecyclerView>(R.id.rvLimitSummary)
+//        val limitRecycler = view.findViewById<RecyclerView>(R.id.rvLimitSummary)
         val sharedPref = requireContext().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val userJson = sharedPref.getString("user", null)
 
@@ -70,6 +70,14 @@ class HomeFragment : BaseFragment() {
             val username = userMap["username"] as? String ?: "Người dùng"
             userId = (userMap["id"] as? Double)?.toInt() ?: -1
             tvGreeting.text = "Xin chào, $username"
+        }
+
+        //Thông báo
+        val btnNotification = view.findViewById<ImageView>(R.id.btnNotification)
+        btnNotification.setOnClickListener {
+
+            val intent = Intent(requireActivity(), ListNotification::class.java)
+            startActivity(intent)
         }
 
         //Hiển thị số dư và tổng chi tháng
@@ -116,14 +124,6 @@ class HomeFragment : BaseFragment() {
         }
 
 
-
-        val btnNotification = view.findViewById<ImageView>(R.id.btnNotification)
-        btnNotification.setOnClickListener {
-
-            val intent = Intent(requireActivity(), ListNotification::class.java)
-            startActivity(intent)
-        }
-
 //Hiển thị Chi theo phân loại
         val rv = view.findViewById<RecyclerView>(R.id.rvCategorySpending)
         rv.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -146,7 +146,8 @@ class HomeFragment : BaseFragment() {
             startActivity(intent)
         }
 
-        //Hiển thị danh sách giao dịch gần đây
+
+//Hiển thị danh sách giao dịch gần đây
         val rvTransactions = view.findViewById<RecyclerView>(R.id.rvRecentTransactions)
         rvTransactions.layoutManager = LinearLayoutManager(requireContext())
 
@@ -169,7 +170,7 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-// Mặc định hiển thị loại "chi"
+
         if (userId != -1) {
             try {
                 loadTransactions("chi")
@@ -191,7 +192,6 @@ class HomeFragment : BaseFragment() {
             }
         }
 
-// Xem thêm → sang MainActivity (tab giao dịch)
         tvViewAll.setOnClickListener {
             val intent = Intent(requireContext(), SpendingHistory::class.java)
             startActivity(intent)
@@ -200,7 +200,7 @@ class HomeFragment : BaseFragment() {
         val chart = view.findViewById<LineChart>(R.id.lineChart)
         setupChart(chart)
     }
-
+//Biểu đồ
     private fun setupChart(chart: LineChart) {
         val entries = listOf(
             Entry(1f, 400f),

@@ -70,7 +70,6 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Tạo đối tượng LoginUser
             val loginUser = LoginUser(username = username, pass_ = password)
 
             // Gọi API đăng nhập
@@ -81,15 +80,12 @@ class LoginActivity : AppCompatActivity() {
                     }
                     if (response.isSuccessful) {
                         val responseBody = response.body()
-                        // Kiểm tra và ép kiểu message thành String
                         val message = responseBody?.get("message") as? String ?: "Đăng nhập thành công"
                         Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
 
-                        // Lưu thông tin người dùng vào SharedPreferences
                         val userRaw = responseBody?.get("user")
                         val userJson = Gson().toJson(userRaw)
                         val user = Gson().fromJson(userJson, User::class.java)
-
                         sharedPreferences.edit()
                             .putString("user", Gson().toJson(user))
                             .apply()

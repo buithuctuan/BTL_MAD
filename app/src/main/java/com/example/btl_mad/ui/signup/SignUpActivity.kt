@@ -94,7 +94,6 @@ class SignUpActivity : AppCompatActivity() {
             val securityAnswer = etSecurityAnswer.text.toString().trim()
             val avatar = etAvatar.text.toString().trim()
 
-            // Validate đầu vào cơ bản
             if (username.isEmpty() || fullName.isEmpty() || dob.isEmpty() || email.isEmpty() ||
                 phoneNumber.isEmpty() || password.isEmpty() || selectedGenderId == -1 ||
                 selectedQuestionPosition == 0 || securityAnswer.isEmpty()) {
@@ -102,7 +101,6 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Lấy giới tính
             val gender = when (selectedGenderId) {
                 R.id.rbMale -> "male"
                 R.id.rbFemale -> "female"
@@ -112,7 +110,6 @@ class SignUpActivity : AppCompatActivity() {
                 }
             }
 
-            // Chuyển định dạng ngày sinh sang "yyyy-MM-dd"
             val inputFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
             val outputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
             val dobFormatted = try {
@@ -130,7 +127,6 @@ class SignUpActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Tạo đối tượng User
             val user = UserRegisterRequest(
                 username = username,
                 pass_ = password,
@@ -170,7 +166,6 @@ class SignUpActivity : AppCompatActivity() {
             }
         }
 
-        // Xử lý "Đã có tài khoản? Đăng nhập"
         findViewById<View>(R.id.tvLogin).setOnClickListener {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
@@ -195,7 +190,6 @@ class SignUpActivity : AppCompatActivity() {
                 }
                 if (response.isSuccessful) {
                     questions = response.body() ?: emptyList()
-                    // Lưu vào cache
                     sharedPreferences.edit().putString("questions", Gson().toJson(questions)).apply()
                     setupSpinner()
                 } else {

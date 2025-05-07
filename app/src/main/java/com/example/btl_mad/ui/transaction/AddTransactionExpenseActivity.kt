@@ -100,19 +100,25 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
             finish()
         }
 
-        // Thiết lập DatePicker cho toàn bộ LinearLayout
         datePickerLayout.setOnClickListener {
-            showCustomDatePickerDialog()
+            CustomDatePickerHelper(this) { selectedDate ->
+                datePickerText.text = selectedDate
+            }.show()
         }
 
-        // Đảm bảo amountInput hiển thị bàn phím số
         amountInput.setOnClickListener {
             amountInput.isCursorVisible = true
         }
 
-        // Xử lý icon ảnh
         iconImage.setOnClickListener {
-            showImagePickerDialog()
+            TransactionDialogs.showImagePickerDialog(
+                activity = this,
+                externalCacheDir = externalCacheDir,
+                packageName = packageName,
+                onImageSelected = { uri -> cameraImageUri = uri },
+                launchCamera = { intent -> takePictureLauncher.launch(intent) },
+                launchGallery = { pickImageLauncher.launch("image/*") }
+            )
         }
 
         // Xử lý phân loại
@@ -120,7 +126,9 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
             if (transactionTypes.isEmpty()) {
                 fetchTransactionTypes()
             } else {
-                showCategoryPickerDialog()
+                TransactionDialogs.showCategoryPickerDialog(this, transactionTypes) { selected ->
+                    categoryText.text = selected.name
+                }
             }
         }
 
@@ -179,11 +187,7 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
             Toast.makeText(this, "Không tìm thấy thông tin người dùng!", Toast.LENGTH_SHORT).show()
             return
         }
-
-
-
         user_id = userId
-
         val amountValue = amount.toDoubleOrNull() ?: 0.0
         val transactionTypeId = getTransactionTypeIdFromCategory(category)
         transaction_type_id = transactionTypeId
@@ -316,161 +320,6 @@ class AddTransactionExpenseActivity : AppCompatActivity() {
         return transactionTypes.find { it.name == category }?.id ?: 0
     }
 
-    private fun showCustomDatePickerDialog() {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.custom_date_picker_dialog, null)
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
-
-        val monthYearText: TextView = dialogView.findViewById(R.id.monthYearText)
-        val prevMonth: ImageView = dialogView.findViewById(R.id.prevMonth)
-        val nextMonth: ImageView = dialogView.findViewById(R.id.nextMonth)
-        val calendarGrid: GridView = dialogView.findViewById(R.id.calendarGrid)
-
-        val calendar = Calendar.getInstance()
-        var selectedYear = calendar.get(Calendar.YEAR)
-        var selectedMonth = calendar.get(Calendar.MONTH)
-        var selectedDay = calendar.get(Calendar.DAY_OF_MONTH)
-
-        val monthYearFormat = SimpleDateFormat("MMMM yyyy", Locale("vi"))
-        val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
-
-        calendar.set(selectedYear, selectedMonth, 1)
-        monthYearText.text = "Tháng ${selectedMonth + 1} $selectedYear"
-
-        fun updateCalendar() {
-            calendar.set(selectedYear, selectedMonth, 1)
-            val firstDayOfMonth = (calendar.get(Calendar.DAY_OF_WEEK) + 5) % 7
-            val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-
-            val days = mutableListOf<Int>()
-            for (i in 0 until firstDayOfMonth) {
-                days.add(0)
-            }
-            for (i in 1..daysInMonth) {
-                days.add(i)
-            }
-
-            val datePickerText = findViewById<TextView>(R.id.datePickerText)
-
-            val adapter = CalendarAdapter(this, days, selectedDay, selectedMonth + 1, selectedYear) { day ->
-                selectedDay = day
-
-                val calendar = Calendar.getInstance()
-                calendar.set(selectedYear, selectedMonth, day)
-
-                val sdf = SimpleDateFormat("EEEE, dd/MM/yyyy", Locale("vi", "VN"))
-                val formattedDate = sdf.format(calendar.time)
-
-                datePickerText.text = formattedDate.replaceFirstChar { it.uppercase() }
-            }
-            calendarGrid.adapter = adapter
-        }
-
-        updateCalendar()
-
-        prevMonth.setOnClickListener {
-            selectedMonth--
-            if (selectedMonth < 0) {
-                selectedMonth = 11
-                selectedYear--
-            }
-            calendar.set(selectedYear, selectedMonth, 1)
-            monthYearText.text = "Tháng ${selectedMonth + 1} $selectedYear"
-            updateCalendar()
-        }
-
-        nextMonth.setOnClickListener {
-            selectedMonth++
-            if (selectedMonth > 11) {
-                selectedMonth = 0
-                selectedYear++
-            }
-            calendar.set(selectedYear, selectedMonth, 1)
-            monthYearText.text = "Tháng ${selectedMonth + 1} $selectedYear"
-            updateCalendar()
-        }
-
-        calendarGrid.setOnItemClickListener { _, _, position, _ ->
-            Log.d("CalendarDebug", "Item clicked at position: $position")
-            val day = (calendarGrid.adapter as CalendarAdapter).getItem(position) as Int
-            Log.d("CalendarDebug", "Selected day: $day")
-            if (day != 0) {
-                selectedDay = day
-                calendar.set(selectedYear, selectedMonth, selectedDay)
-                datePickerText.text = dateFormat.format(calendar.time)
-                updateCalendar()
-                dialog.dismiss()
-            }
-        }
-
-        dialog.show()
-        dialog.window?.let { window ->
-            val params = window.attributes
-            params.gravity = Gravity.BOTTOM
-            params.width = android.view.WindowManager.LayoutParams.MATCH_PARENT
-            window.attributes = params
-            window.setBackgroundDrawableResource(android.R.color.transparent)
-        }
-    }
-
-    private fun showImagePickerDialog() {
-        val options = arrayOf("Chọn ảnh từ thư viện", "Chụp ảnh mới")
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Chọn ảnh")
-            .setItems(options) { _, which ->
-                when (which) {
-                    0 -> pickImageLauncher.launch("image/*")
-                    1 -> {
-                        val imageFile = File.createTempFile("camera_", ".jpg", externalCacheDir)
-                        cameraImageUri = FileProvider.getUriForFile(this, "${packageName}.fileprovider", imageFile)
-
-                        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, cameraImageUri)
-                        takePictureLauncher.launch(takePictureIntent)
-                        takePictureIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-
-                    }
-                }
-            }
-            .show()
-    }
-
-    private fun showCategoryPickerDialog() {
-        val dialogView = LayoutInflater.from(this).inflate(R.layout.popup_category_picker, null)
-        val dialog = MaterialAlertDialogBuilder(this)
-            .setView(dialogView)
-            .setCancelable(true)
-            .create()
-
-        val gridView = dialogView.findViewById<GridView>(R.id.categoryGridView)
-
-        val adapter = CategoryAdapter(this, transactionTypes)
-        gridView.adapter = adapter
-
-        gridView.setOnItemClickListener { _, _, position, _ ->
-            val selectedCategory = transactionTypes[position]
-            categoryText.text = selectedCategory.name
-            dialog.dismiss()
-        }
-
-        val addCategoryLayout = dialogView.findViewById<LinearLayout>(R.id.addCategoryLayout)
-        addCategoryLayout.setOnClickListener {
-            dialog.dismiss()
-            startActivity(Intent(this, AddFundActivity::class.java))
-        }
-
-        dialog.show()
-        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
-        dialog.window?.let { window ->
-            val params = window.attributes
-            params.gravity = Gravity.BOTTOM
-            params.width = android.view.WindowManager.LayoutParams.WRAP_CONTENT
-            window.attributes = params
-            window.setBackgroundDrawableResource(android.R.color.transparent)
-        }
-    }
 
     private fun showSuccessDialog() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.success_dialog_transaction, null)
