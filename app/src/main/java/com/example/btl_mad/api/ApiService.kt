@@ -1,9 +1,43 @@
 package com.example.btl_mad.api
 
-import com.example.btl_mad.data.*
-import retrofit2.Response
+import com.example.btl_mad.data.CategorySpending
+import com.example.btl_mad.data.Fund
+import com.example.btl_mad.data.LoginUser
+import com.example.btl_mad.data.Question
+import com.example.btl_mad.data.VerifyForgotPasswordRequest
+import com.example.btl_mad.data.ResetPasswordRequest
+import com.example.btl_mad.data.UserRegisterRequest
+import com.example.btl_mad.data.VerifyResponse
+import com.example.btl_mad.data.statistics.PredictResponse
+import com.example.btl_mad.data.statistics.StatisticPieEntry
+import com.example.btl_mad.data.statistics.StatisticLineEntry
+import com.example.btl_mad.data.statistics.StatisticTotalEntry
+import com.example.btl_mad.data.ChangePasswordRequest
+import com.example.btl_mad.data.ExpenseRequest
+import com.example.btl_mad.data.ExpenseResponse
+import com.example.btl_mad.data.FundResponse
+import com.example.btl_mad.data.Funds_home
+import com.example.btl_mad.data.SpendingSummaryResponse
+import com.example.btl_mad.data.TotalSpendingAndIncomeResponse
+import com.example.btl_mad.data.Transaction
+import com.example.btl_mad.data.TransactionRequest
+import com.example.btl_mad.data.Transaction_home
+import com.example.btl_mad.data.Notification
+import com.example.btl_mad.data.TransactionType
+import com.example.btl_mad.data.TransFund
+import com.example.btl_mad.data.FundInfo
+import com.example.btl_mad.data.FundDetail
+import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Path
+import retrofit2.http.Query
+
 
 interface ApiService {
     @POST("api/users/register")
@@ -18,8 +52,13 @@ interface ApiService {
     @POST("/api/users/verifyForgotPassword")
     suspend fun verifyForgotPassword(@Body request: VerifyForgotPasswordRequest): Response<VerifyResponse>
 
+
     @POST("api/users/resetPassword")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<Map<String, Any>>
+
+    @POST("api/users/change-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<Map<String, Any>>
+
 
     // Get notifications
     @GET("/api/notifications/{user_id}")
@@ -96,9 +135,54 @@ interface ApiService {
     @POST("api/expense")
     fun saveExpense(@Body request: ExpenseRequest): Call<ExpenseResponse>
 
+
+    @GET("/api/statistics/pie")
+    suspend fun getPieData(
+        @Query("userId") userId: Int,
+        @Query("type") type: String,
+        @Query("period") period: String
+    ): List<StatisticPieEntry>
+
+    @GET("/api/statistics/line")
+    suspend fun getLineData(
+        @Query("userId") userId: Int,
+        @Query("type") type: String,
+        @Query("period") period: String
+    ): List<StatisticLineEntry>
+
+    @GET("/api/statistics/summary")
+    suspend fun getStatisticTotal(
+        @Query("userId") userId: Int,
+        @Query("type") type: String,
+        @Query("period") period: String
+    ): StatisticTotalEntry
+
+    @GET("/api/statistics/predict")
+    suspend fun getPrediction(
+        @Query("userId") userId: Int,
+        @Query("type") type: String
+    ): PredictResponse
+
+    @GET("/api/funds_home")
+    suspend fun getFundsByUserId(@Query("user_id") userId: Int): List<Funds_home>
+
+    @GET("/api/statistics/by-category")
+    suspend fun getSpendingByCategory(@Query("user_id") userId: Int): List<CategorySpending>
+
+    @GET("/api/transactions/recent")
+    suspend fun getRecentTransactions(
+        @Query("user_id") userId: Int,
+        @Query("type") type: String,
+        @Query("limit") limit: Int = 5
+    ): List<Transaction_home>
+
+    @GET("/api/spending_summary_home")
+    suspend fun getSpendingSummary(@Query("user_id") userId: Int): SpendingSummaryResponse
+
     @POST("api/getListTransactions")
     fun getListTransactions(
-        @Body request: TransactionRequest): Call<List<Transaction>>
+        @Body request: TransactionRequest
+    ): Call<List<Transaction>>
     // lấy tổng số tiền chi và thu trong một khoảng thời gian
     @GET("/api/getTotalSpendingAndIncome/{user_id}")
     fun getTotalSpendingAndIncome(
@@ -111,4 +195,14 @@ interface ApiService {
         @Path("id") Id: Int
     ): Call<FundResponse>
 
+    // sua giao dich
+    @POST("/api/modifyTransaction")
+    fun updateTransaction(
+        @Body request: Transaction
+    ): Call<FundResponse>
+
+    @PUT("/api/users/update-profile")
+    suspend fun updateProfile(@Body data: Map<String, String>): Response<ResponseBody>
+
 }
+

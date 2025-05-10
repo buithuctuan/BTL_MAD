@@ -26,6 +26,7 @@ import com.example.btl_mad.data.TransactionType
 import com.example.btl_mad.data.User
 import com.example.btl_mad.ui.fund.AddFundActivity
 import com.example.btl_mad.ui.main.MainActivity
+import com.example.btl_mad.utils.SharedPrefManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.gson.Gson
 import retrofit2.Call
@@ -84,6 +85,10 @@ class AddTransactionIncomeActivity : AppCompatActivity() {
         toolbar.setNavigationOnClickListener {
             finish()
         }
+        val backIcon = findViewById<ImageView>(R.id.backIcon)
+        backIcon.setOnClickListener{
+            finish()
+        }
 
         // Thiết lập DatePicker cho toàn bộ LinearLayout
         datePickerLayout.setOnClickListener {
@@ -134,11 +139,13 @@ class AddTransactionIncomeActivity : AppCompatActivity() {
 
 
     private fun fetchTransactionTypes() {
-        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-        val userJson = sharedPreferences.getString("user", null)
-        val user = Gson().fromJson(userJson, User::class.java)
+        val userId = SharedPrefManager.getUserId(this)
+        if (userId == -1) {
+            Log.e("STATISTICS", "User ID not found in SharedPreferences")
+            return
+        }
 
-        RetrofitClient.apiService.getTransactionTypesByQuery(user.id).enqueue(object : Callback<List<TransactionType>> {
+        RetrofitClient.apiService.getTransactionTypesByQuery(userId).enqueue(object : Callback<List<TransactionType>> {
             override fun onResponse(call: Call<List<TransactionType>>, response: Response<List<TransactionType>>) {
                 if (response.isSuccessful) {
                     transactionTypes = response.body() ?: emptyList()
@@ -157,24 +164,9 @@ class AddTransactionIncomeActivity : AppCompatActivity() {
     }
 
     private fun saveIncomeToServer(date: String, amount: String, category: String, note: String) {
-        val sharedPreferences = getSharedPreferences("UserPrefs", MODE_PRIVATE)
-        val userJson = sharedPreferences.getString("user", null)
-
-        val userId = if (userJson != null) {
-            try {
-                val user = Gson().fromJson(userJson, User::class.java)
-                user.id // Đây là Int, không phải Double
-            } catch (e: Exception) {
-                Log.e("ERROR", "Lỗi khi parse userJson: ${e.message}")
-                0
-            }
-        } else {
-            0
-        }
-
-        // Nếu không lấy được user_id thì không gửi request
-        if (userId == 0) {
-            Toast.makeText(this, "Không tìm thấy thông tin người dùng!", Toast.LENGTH_SHORT).show()
+        val userId = SharedPrefManager.getUserId(this)
+        if (userId == -1) {
+            Log.e("STATISTICS", "User ID not found in SharedPreferences")
             return
         }
 
